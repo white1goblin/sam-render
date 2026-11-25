@@ -1,0 +1,54 @@
+name: render
+on:
+  workflow_dispatch:
+  push:
+    paths: ['missing.txt']
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install && npx playwright install --with-deps chromium-headless-shell
+      - name: frames for this shard
+        run: |
+          python3 - <<'P'
+          import os
+          fr=[int(x) for x in open('missing.txt').read().split()]
+          N=20; i=int(os.environ['S']); n=len(fr); a=i*n//N; b=(i+1)*n//N
+          L=fr[a:b]; rs=[]
+          if L:
+            s=e=L[0]
+            for f in L[1:]:
+              if f==e+1: e=f
+              else: rs.append(f'{s}-{e}' if e>s else str(s)); s=e=f
+            rs.append(f'{s}-{e}' if e>s else str(s))
+          open('spec.txt','w').write(','.join(rs) or 'none')
+          P
+          cat spec.txt
+        env: { S: '${{ matrix.shard }}' }
+      - name: render (2 workers per runner)
+        run: |
+          SPEC=$(cat spec.txt); [ "$SPEC" = none ] && exit 0
+          python3 -c "
+          s=open('spec.txt').read().split(',');fr=[]
+          for p in s:
+            a,_,b=p.partition('-');fr+=range(int(a),int(b or a)+1)
+          h=len(fr)//2
+          def sp(L):
+            r=[];a=e=L[0]
+            for f in L[1:]:
+              if f==e+1:e=f
+              else:r.append(f'{a}-{e}' if e>a else str(a));a=e=f
+            r.append(f'{a}-{e}' if e>a else str(a));return ','.join(r)
+          open('s0','w').write(sp(fr[:h]) if h else 'none');open('s1','w').write(sp(fr[h:]))"
+          for w in 0 1; do ( S=$(cat s$w); [ "$S" = none ] || until FRAME_TMO=120000 RESUME=1 node render.mjs out "$S"; do echo retry; done ) & done; wait
+          ls out | wc -l
+      - uses: actions/upload-artifact@v4
+        with: { name: 'frames-${{ matrix.shard }}', path: out/, retention-days: 3, compression-level: 0 }
