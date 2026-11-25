@@ -969,7 +969,7 @@ window.renderFrame = (f) => { PT('idle');
   camera.fov = C.fov; camera.updateProjectionMatrix(); camera.updateMatrixWorld();
   const Wd = worldAt(f); worldState(Wd, f);
   placeSun(L, new THREE.Vector3(...(C.shadowAt || C.look)));
-  PT('state'); setCardShade(L); drawActors([...actorsAt(f, T), ...fxAt(f, T).map((a) => ({ ...a, _fx: 1 }))], camera); PT('cards');
+  PT('state'); setCardShade(L); drawActors([...depen(actorsAt(f, T), f), ...fxAt(f, T).map((a) => ({ ...a, _fx: 1 }))], camera); PT('cards');
   sky.position.copy(camera.position);
   renderer.setRenderTarget(rtColor); renderer.setClearColor(0x000000, 1); renderer.clear(); renderer.render(scene, camera); PT('color');
   const fog = scene.fog; scene.fog = null; const sm = renderer.shadowMap.enabled; renderer.shadowMap.enabled = false; renderer.shadowMap.autoUpdate = false;
@@ -988,3 +988,43 @@ window.renderFrame = (f) => { PT('idle');
 };
 window.TOTAL = TOTAL; window.DBG = { proj: (k) => { const c = cards.find((c) => c.key.startsWith(k)); c.mesh.updateMatrixWorld(); const v = c.mesh.localToWorld(new THREE.Vector3(0, 0.4, 0)).project(camera); return [v.x.toFixed(2), v.y.toFixed(2), v.z.toFixed(3), c.mesh.renderOrder, c.mat.depthTest, c.mat.opacity, c.mat.transparent, scene.children.includes(c.mesh)].join(","); }, canv: (k) => { const c = cards.find((c) => c.key.startsWith(k)); const d = c.g.getImageData(0, 0, c.W, c.H).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 128) n++; return n + "/" + (d.length / 4) + " vis " + c.mesh.visible + " rot " + c.mesh.rotation.toArray().slice(0,3).map(v=>(+v).toFixed(2)); }, cards: () => cards.filter((c) => c.mesh.visible).map((c) => ({ key: c.key.slice(0, 30), res: c.res, p: c.mesh.position.toArray().map((v) => +v.toFixed(2)), s: c.mesh.scale.x })) };
 window.ready = true;
+// ---- collision audit (debug only) ----
+const _bx = new THREE.Box3(), _pv = new THREE.Vector3();
+const _visible = (o) => { for (let p = o; p; p = p.parent) if (!p.visible) return false; return true; };
+let _boxCache = { set: null, boxes: [] };
+const _setBoxes = (setName) => { if (_boxCache.set === setName) return _boxCache.boxes; const boxes = [];
+  scene.updateMatrixWorld(true);
+  scene.traverse((o) => { if (!o.isMesh || o === sky || o.userData.sky || o.userData.cloud) return; if (cards.some((c) => c.mesh === o || c.blob === o)) return; if (!_visible(o)) return;
+    if (o.material && (o.material.transparent && o.material.depthWrite === false)) return;
+    _bx.setFromObject(o); const sz = _bx.getSize(_pv); if (sz.y < 0.06) return; if (sz.x > 40 || sz.z > 40) return;
+    boxes.push({ b: _bx.clone(), o, sz: [sz.x, sz.y, sz.z].map((v) => +v.toFixed(2)) }); });
+  _boxCache = { set: setName, boxes }; return boxes; };
+window.DEP = (f) => { const S = shotAt(f), C = camAt(f); camera.position.set(...C.pos); worldState(worldAt(f), f); _dpKey = null; const L = actorsAt(f, T); const D = depen(L, f); return { n: _dpBoxes.length, a: L.map((a, i) => [a.key.split('{')[0], a.x, a.z, D[i].x, D[i].z, a.y]) }; };
+window.COLL = (f) => { const S = shotAt(f), C = camAt(f); camera.position.set(...C.pos); const Wd = worldAt(f); worldState(Wd, f);
+  _boxCache.set = null; const boxes = _setBoxes(S.set + '|' + f); const out = [];
+  for (const a of depen(actorsAt(f, T), f)) { if (a.y > 3 || a.flat) continue; const s = a.s || 1; const yaw = Math.atan2(C.pos[0] - a.x, C.pos[2] - a.z); const rx_ = Math.cos(yaw), rz_ = -Math.sin(yaw);
+    const hits = new Map();
+    for (const u of [-0.24, -0.12, 0, 0.12, 0.24]) for (const h of [0.15, 0.5, 0.9, 1.3, 1.65]) { const p = new THREE.Vector3(a.x + rx_ * u * s, a.y + h * s, a.z + rz_ * u * s);
+      for (const B of boxes) { const b = B.b; const m = 0.03; if (p.x > b.min.x + m && p.x < b.max.x - m && p.y > b.min.y + m && p.y < b.max.y - m && p.z > b.min.z + m && p.z < b.max.z - m) { const k = B.sz.join('x') + '@' + [b.min.x, b.min.y, b.min.z].map((v) => v.toFixed(1)).join(','); hits.set(k, (hits.get(k) || 0) + 1); } } }
+    if (hits.size) out.push({ who: a.key.split('{')[0], pos: [a.x, a.y, a.z].map((v) => +v.toFixed(2)), hits: [...hits].map(([k, n]) => k + ' n' + n) }); }
+  return { shot: SHOTS.indexOf(S), set: S.set, out }; };
+
+// ---- depenetration: keep characters out of furniture, props, doors and walls ----
+let _dpKey = null, _dpBoxes = [];
+const depen = (list, f) => { const S = shotAt(f); if (S.noPush === true) return list; const key = SHOTS.indexOf(S) + ':' + Math.floor(f / 12);
+  if (key !== _dpKey) { _dpKey = key; scene.updateMatrixWorld(true); _dpBoxes = [];
+    scene.traverse((o) => { if (!o.isMesh || o === sky || o.userData.sky || o.userData.cloud) return; if (cards.some((c) => c.mesh === o || c.blob === o)) return; if (!_visible(o)) return;
+      if (o.material && o.material.transparent && o.material.depthWrite === false) return;
+      const b = new THREE.Box3().setFromObject(o), sz = b.getSize(new THREE.Vector3()); if (sz.y < 0.3 || (sz.x > 6 && sz.z > 6) || Math.max(sz.x, sz.z) > 25) return;
+      const thin = Math.min(sz.x, sz.z), wide = Math.max(sz.x, sz.z); if (thin < 0.2 && wide < 1.3 && sz.y > 1.8) return; // door frames / open doorways
+      _dpBoxes.push(b); }); }
+  const skip = S.noPushKeys || [];
+  const C = camAt(f);
+  return list.map((a) => { if (a.flat || a.noPush || a.y > 0.6 || skip.some((k) => a.key.startsWith(k))) return a; const s = a.s || 1, r = 0.27 * s;
+    const rel = _dpBoxes.filter((b) => !(b.max.y < a.y + 0.3 || b.min.y > a.y + 1.2 * s));
+    const hit = (x, z) => { for (const b of rel) if (x > b.min.x - r && x < b.max.x + r && z > b.min.z - r && z < b.max.z + r) return true; return false; };
+    if (!hit(a.x, a.z)) return a;
+    const cx = C.pos[0] - a.x, cz = C.pos[2] - a.z, cl = Math.hypot(cx, cz) || 1; let best = null, bc = 1e9;
+    for (let ring = 1; ring <= 30 && !best; ring++) { const R = ring * 0.04; for (let k = 0; k < 24; k++) { const th = k / 24 * Math.PI * 2, dx = Math.cos(th) * R, dz = Math.sin(th) * R;
+        if (hit(a.x + dx, a.z + dz)) continue; const cost = R - 0.25 * R * (dx * cx + dz * cz) / (R * cl); if (cost < bc) { bc = cost; best = [a.x + dx, a.z + dz]; } } }
+    return best ? { ...a, x: best[0], z: best[1] } : a; }); };

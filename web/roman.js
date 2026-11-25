@@ -57,6 +57,15 @@ const cobweb = (p, cx, cy, r, u) => {
   g.restore();
 };
 
+/** walk cycle foot: step = phase 0..1 (left foot plants at 0), opts.wdir = lateral travel dir on screen (-1..1, + = card right), stride px amplitude.
+ *  Planted foot slides back exactly as fast as the body travels (no skating); swing foot arcs forward with a knee bend. */
+const walkFoot = (side, opts, u) => {
+  if (opts.hop === side) return { up: 46, dx: 0, knee: 0 };
+  const st = opts.step || 0; if (!st && !opts.walking) return { up: 0, dx: 0, knee: 0 };
+  const p = (st + (side > 0 ? 0.5 : 0)) % 1, d = opts.wdir || 0, A = opts.strideW ?? 80, lift = opts.run ? 52 : 22 + 12 * (1 - Math.abs(d));
+  if (p < 0.5) { const s = p / 0.5; return { up: 0, dx: d * A * (0.5 - s), knee: 0 }; }
+  const s = (p - 0.5) / 0.5, e = s * s * (3 - 2 * s); return { up: Math.sin(Math.PI * s) * lift, dx: d * A * (-0.5 + e), knee: side * Math.sin(Math.PI * s) * 4 * u };
+};
 /** front-facing Roman-era character. opts: expr, blink, look, facing, seed, L/R arm poses, tilt, headTilt, bob, nohelmet, light */
 export const romanFront = (p, key, opts = {}) => {
   const O = typeof key === "string" ? OUTFITS[key] : key;
@@ -79,9 +88,9 @@ export const romanFront = (p, key, opts = {}) => {
   // ---- legs ----
   const dress = !!O.dress;
   for (const side of [-1, 1]) {
-    const up = opts.hop === side ? 46 : Math.max(0, Math.sin(Math.PI * 2 * (step + (side > 0 ? 0.5 : 0)))) * (opts.run ? 52 : 30) * (step ? 1 : 0);
-    const hx = cx + side * 16 * u, fx = cx + side * 22 * u, fy = sole - 4 * u - up;
-    p.stroke(curve([hx, hipY], [(hx + fx) / 2 + side * 2 * u, (hipY + fy) / 2], [fx, fy]), 5.8 * u, legCol);
+    const wf = walkFoot(side, opts, u), up = wf.up;
+    const hx = cx + side * 16 * u, fx = cx + side * 22 * u + wf.dx, fy = sole - 4 * u - up;
+    p.stroke(curve([hx, hipY], [(hx + fx) / 2 + side * 2 * u + wf.knee, (hipY + fy) / 2], [fx, fy]), 5.8 * u, legCol);
     const sandal = O.boots || (O.helmet ? LEATHER : "#5a3b2a");
     if (O.boots) { p.stroke([[fx, fy - 0.16 * HH], [fx, fy - 2 * u]], 8.5 * u + 3, INK); p.stroke([[fx, fy - 0.16 * HH], [fx, fy - 2 * u]], 8.5 * u, O.boots); }
     p.stroke([[fx - side * 3 * u, fy], [fx + side * 13 * u, fy + 0.5 * u]], 7.5 * u + 3, INK);
@@ -129,6 +138,7 @@ export const romanFront = (p, key, opts = {}) => {
       case "crown": return { pts: [s, [X(20), s[1] - 0.25 * HH], [cx + side * (0.9 * H.a) + (opts.reachX || 0) * u, hc - (opts.reachY ?? 1.05) * H.b]], front: false, late: true };
       case "pointDown": return { pts: [s, [X(16), s[1] + 0.36 * HH], [X(26), s[1] + 0.8 * HH]], front: false, finger: true };
       case "flap": { const k = opts.flap || 0; return { pts: [s, [X(26), s[1] - k * 0.25 * HH], [X(44), s[1] - k * 0.55 * HH + 0.1 * HH]], front: false }; }
+      case "walk": { const sw = Math.sin(Math.PI * 2 * ((opts.step || 0) + (side > 0 ? 0 : 0.5))), d = opts.wdir || 0; return { pts: [s, [X(5) + d * 4 * u * sw, s[1] + 0.47 * HH], [X(4 + 3 * Math.abs(sw) * (1 - Math.abs(d))) + d * 15 * u * sw, chin + 1.02 * HH - Math.abs(sw) * 0.07 * HH]], front: false }; }
       default: return { pts: [s, [X(4), s[1] + 0.48 * HH], [X(3), chin + 1.04 * HH]], front: false };
     }
   };

@@ -132,8 +132,8 @@ const SAM_TORSO = {
 const samAfter = (p, O, tcx, T, chin, torsoBot, HH, u) => {
   const opts = p._opts || {}, sole = 975, hipY = torsoBot - 0.12 * HH, cx = 300;
   for (const side of [-1, 1]) {
-    const up = opts.hop === side ? 46 : Math.max(0, Math.sin(Math.PI * 2 * ((opts.step || 0) + (side > 0 ? 0.5 : 0)))) * (opts.run ? 52 : 30) * (opts.step ? 1 : 0);
-    const hx = cx + side * 16 * u, fx = cx + side * 22 * u, fy = sole - 4 * u - up;
+    const wf = walkFoot(side, opts, u), up = wf.up;
+    const hx = cx + side * 16 * u, fx = cx + side * 22 * u + wf.dx, fy = sole - 4 * u - up;
     if (O.jeans && !O.dress) { const mx = (hx + fx) / 2 + side * 2 * u, my = (hipY + fy) / 2; const g = p.g; g.save(); g.setLineDash([2.6 * u, 2 * u]);
       p.stroke(curve([hx + side * 1.5 * u, torsoBot + 0.04 * HH], [mx + side * 1.5 * u, my], [fx + side * 1.5 * u, fy - 0.1 * HH]), 1 * u, "#e8c070"); g.restore();
       p.stroke([[fx - 3.4 * u, fy - 0.07 * HH], [fx + 3.4 * u, fy - 0.07 * HH]], 1.6 * u, mul(O.pants, [1.25, 1.25, 1.25])); // cuff

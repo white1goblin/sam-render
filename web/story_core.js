@@ -88,13 +88,29 @@ export const camAt = (f) => {
 const SPK = (key) => key.startsWith('sam') ? 'SAM' : key.startsWith('mia') ? 'MIA' : key.startsWith('linda') ? 'MOM' : key.startsWith('ray') ? 'RAY' : key === 'hollis' ? 'HOLLIS' : '';
 const speakingAt = (who, f) => { for (const s of SEGS) { if (s[0] > f + 2) break; if (s[2] === who && f >= s[0] - 1 && f <= s[1] + 1) return true; } return false; };
 export const SCALE = { sam1: 0.5, sam5: 0.66, sam9: 0.8, sam12: 0.9, sam15: 0.97, mia3: 0.6, mia12: 0.9, kidA: 0.95, kidB: 0.95, dee: 0.97, linda: 0.97, lindaOff: 0.97, lindaHome: 0.97, mia: 0.97, mia18: 0.97, hollis: 0.96, nurse: 0.96, neighbor: 0.95 };
+// ---- gait: per-shot actor paths -> walk phase that plants feet, lateral direction, arm swing, bob ----
+const _paths = new Map();
+const shotPaths = (S) => { let R = _paths.get(S); if (R) return R; R = []; const cum = [];
+  for (let lf = 0; lf < S.n; lf++) { const k = ctx(S, S.a + lf), row = []; try { S.act(k, (key, pos, o = {}, ex = {}) => { row.push([pos[0], pos[1], pos[2], key, (ex.s ?? SCALE[key] ?? 1) * (ex.k ?? 1)]); }, _stubC, null); } catch (e) {} R.push(row);
+    const prev = R[lf - 1], c = row.map((p, i) => { const q_ = prev && prev[i] && prev[i][3] === p[3] ? prev[i] : null; const d = q_ ? Math.hypot(p[0] - q_[0], p[2] - q_[2]) : 0; return (q_ && cum[lf - 1] ? cum[lf - 1][i] : 0) + (d < 0.5 ? d : 0); }); cum.push(c); }
+  R = { P: R, C: cum }; if (_paths.size > 6) _paths.clear(); _paths.set(S, R); return R; };
+const gaitFor = (S, lf, idx, key, cam) => { const G = shotPaths(S), row = G.P[lf]; if (!row || !row[idx] || row[idx][3] !== key) return null;
+  const a = G.P[Math.max(0, lf - 1)][idx], b = G.P[Math.min(S.n - 1, lf + 1)][idx]; if (!a || !b || a[3] !== key || b[3] !== key) return null;
+  const n_ = (lf > 0 ? 1 : 0) + (lf < S.n - 1 ? 1 : 0) || 1, vx = (b[0] - a[0]) / n_, vz = (b[2] - a[2]) / n_, sp = Math.hypot(vx, vz) * 30;
+  const fx_ = cam.look[0] - cam.pos[0], fz_ = cam.look[2] - cam.pos[2], fl = Math.hypot(fx_, fz_) || 1, rx_ = -fz_ / fl, rz_ = fx_ / fl;
+  return { sp, dir: sp > 1e-4 ? (vx * rx_ + vz * rz_) * 30 / sp : 0, cum: G.C[lf][idx], s: row[idx][4] }; };
 export const actorsAt = (f, T) => {
-  const S = shotAt(f), out = []; if (!S.act) return out; const tint = (LIGHTS[S.light] || {}).cardTint || '#ffffff';
-  const A = (key, pos, o = {}, ex = {}) => { const seed = ex.seed ?? (key.length * 7 + key.charCodeAt(0)) % 23 + 1, I = idle(f, seed);
+  const S = shotAt(f), out = []; if (!S.act) return out; const tint = (LIGHTS[S.light] || {}).cardTint || '#ffffff'; let _ai = -1; const _cam = camAt(f), _lf = f - S.a;
+  const A = (key, pos, o = {}, ex = {}) => { _ai++; if (!o.noWalk && !o.sit && !o.run && !ex.flat) { const g = gaitFor(S, _lf, _ai, key, _cam); const intent = 'step' in o;
+      if (g && g.sp > 0.25 && g.sp < 3.5 && (intent || Math.abs(pos[1]) < 0.6)) { const ph = (g.cum / (0.8 * g.s)) % 1, wd = clamp(g.dir * (ex.flip ? -1 : 1), -1, 1);
+        o = { ...o, step: Math.max(0.01, ph), walking: 1, wdir: q(wd, 1), strideW: 110, bob: (o.bob || 0) + 0.018 * (0.5 - 0.5 * Math.cos(4 * Math.PI * ph)), tilt: (o.tilt || 0) + wd * 3 + 1.2 * Math.sin(2 * Math.PI * ph) };
+        if ((o.L ?? 'hang') === 'hang') o.L = 'walk'; if ((o.R ?? 'hang') === 'hang') o.R = 'walk'; if (o.facing === undefined && Math.abs(wd) > 0.4) o.facing = q(wd * 0.6, 1); }
+      else if (intent) o = { ...o, step: 0 }; }
+    const seed = ex.seed ?? (key.length * 7 + key.charCodeAt(0)) % 23 + 1, I = idle(f, seed);
     let expr = o.expr || 'neutral'; const who = SPK(key); if (o.talk !== false && who && speakingAt(who, f) && ((f + seed) >> 2) % 2 === 0) expr = expr + '_t';
     const op = { blink: o.closed ? 1 : blinkAt(f, seed), seed: 3, ...o, expr, headTilt: Math.round(((o.headTilt || 0) + I.headTilt) * 2) / 2 };
-    for (const kk of ['wv', 'step', 'lift', 'look', 'tears', 'bob', 'jarFill', 'signT', 'cordX', 'cordY', 'propDX', 'propDY']) if (typeof op[kk] === 'number') op[kk] = q(op[kk], 2);
-    delete op.talk; delete op.closed;
+    for (const kk of ['wv', 'step', 'lift', 'look', 'tears', 'jarFill', 'signT', 'cordX', 'cordY', 'propDX', 'propDY']) if (typeof op[kk] === 'number') op[kk] = q(op[kk], 2);
+    if (typeof op.bob === 'number') op.bob = q(op.bob, 3); if (typeof op.tilt === 'number') op.tilt = q(op.tilt, 1); delete op.talk; delete op.closed;
     const s = (ex.s ?? SCALE[key] ?? 1) * (ex.k ?? 1);
     out.push({ key: key + JSON.stringify(op), draw: (p) => T.samFront(p, key, op), x: pos[0], y: pos[1] + I.bob * 0.4 * s + (ex.dy || 0), z: pos[2], s, tint, ...ex }); };
   const C = (key, draw, pos, s = 0.5, ex = {}) => out.push({ key, draw, x: pos[0], y: pos[1], z: pos[2], s, tint, blob: false, ...ex });
