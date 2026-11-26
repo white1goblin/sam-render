@@ -69,6 +69,14 @@ window.renderFrame = (f) => { PT('idle');
   PT('ov'); return true;
 };
 window.TOTAL = TOTAL; window.DBG = { proj: (k) => { const c = cards.find((c) => c.key.startsWith(k)); c.mesh.updateMatrixWorld(); const v = c.mesh.localToWorld(new THREE.Vector3(0, 0.4, 0)).project(camera); return [v.x.toFixed(2), v.y.toFixed(2), v.z.toFixed(3), c.mesh.renderOrder, c.mat.depthTest, c.mat.opacity, c.mat.transparent, scene.children.includes(c.mesh)].join(","); }, canv: (k) => { const c = cards.find((c) => c.key.startsWith(k)); const d = c.g.getImageData(0, 0, c.W, c.H).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 128) n++; return n + "/" + (d.length / 4) + " vis " + c.mesh.visible + " rot " + c.mesh.rotation.toArray().slice(0,3).map(v=>(+v).toFixed(2)); }, cards: () => cards.filter((c) => c.mesh.visible).map((c) => ({ key: c.key.slice(0, 30), res: c.res, p: c.mesh.position.toArray().map((v) => +v.toFixed(2)), s: c.mesh.scale.x })) };
+// decals: small planes sitting on walls/props get a depth bias toward the camera (kills z-fighting shimmer); materials shared with solid meshes are left alone
+{ scene.updateMatrixWorld(true); const good = new Set(), bad = new Set(); let n = 0;
+  scene.traverse((o) => { if (!o.isMesh || !o.material || Array.isArray(o.material) || o === sky || o.userData.sky || o.userData.cloud) return; if (cards.some((c) => c.mesh === o || c.blob === o)) return;
+    let ok = false; if (o.geometry && o.geometry.type === 'PlaneGeometry') { const b = new THREE.Box3().setFromObject(o), z = b.getSize(new THREE.Vector3()); const vert = Math.min(z.x, z.z) < 0.002 && z.y > 0.002, horiz = z.y < 0.002;
+      ok = (vert && z.y * Math.max(z.x, z.z) < 30) || (horiz && z.x * z.z < 2.5); }
+    (ok ? good : bad).add(o.material); });
+  for (const m of good) if (!bad.has(m)) { m.polygonOffset = true; m.polygonOffsetFactor = -1; m.polygonOffsetUnits = -4; m.needsUpdate = true; n++; }
+  window.DECALS = n; }
 window.ready = true;
 // ---- collision audit (debug only) ----
 const _bx = new THREE.Box3(), _pv = new THREE.Vector3();
@@ -110,3 +118,16 @@ const depen = (list, f) => { const S = shotAt(f); if (S.noPush === true) return 
     for (let ring = 1; ring <= 30 && !best; ring++) { const R = ring * 0.04; for (let k = 0; k < 24; k++) { const th = k / 24 * Math.PI * 2, dx = Math.cos(th) * R, dz = Math.sin(th) * R;
         if (hit(a.x + dx, a.z + dz)) continue; const cost = R - 0.25 * R * (dx * cx + dz * cz) / (R * cl); if (cost < bc) { bc = cost; best = [a.x + dx, a.z + dz]; } } }
     return best ? { ...a, x: best[0], z: best[1] } : a; }); };
+// ---- z-fight finder (diagnostic): coplanar same-side faces of overlapping world AABBs ----
+window.ZF = (f) => { const S = shotAt(f); worldState(worldAt(f), f); scene.updateMatrixWorld(true); const B = [];
+  scene.traverse((o) => { if (!o.isMesh || o === sky || o.userData.sky || o.userData.cloud) return; if (cards.some((c) => c.mesh === o || c.blob === o)) return; if (!_visible(o)) return;
+    const e = o.matrixWorld.elements; const ax = Math.abs(e[1]) + Math.abs(e[2]) + Math.abs(e[4]) + Math.abs(e[6]) + Math.abs(e[8]) + Math.abs(e[9]); const rot = ax > 0.02 && !(Math.abs(e[0]) < 0.02 && Math.abs(e[10]) < 0.02);
+    const b = new THREE.Box3().setFromObject(o); if (b.isEmpty()) return; B.push({ b, o, rot, m: (o.material && o.material.uuid) || '', c: o.material && o.material.color ? o.material.color.getHexString() : '' }); });
+  const R = [], ks = ['x', 'y', 'z'];
+  for (let i = 0; i < B.length; i++) for (let j = i + 1; j < B.length; j++) { const A = B[i], C = B[j]; if (A.m === C.m) continue; if (A.rot && C.rot) continue;
+    const a = A.b, c = C.b; let ok = true; for (const k of ks) if (a.max[k] < c.min[k] - 0.003 || c.max[k] < a.min[k] - 0.003) ok = false; if (!ok) continue;
+    for (let d = 0; d < 3; d++) { const k = ks[d], o1 = ks[(d + 1) % 3], o2 = ks[(d + 2) % 3];
+      const ov = Math.max(0, Math.min(a.max[o1], c.max[o1]) - Math.max(a.min[o1], c.min[o1])) * Math.max(0, Math.min(a.max[o2], c.max[o2]) - Math.max(a.min[o2], c.min[o2])); if (ov < 0.02) continue;
+      for (const sd of ['min', 'max']) if (Math.abs(a[sd][k] - c[sd][k]) < 0.0025) { const thinA = a.max[k] - a.min[k] < 0.001, thinC = c.max[k] - c.min[k] < 0.001;
+        R.push({ shot: S.id, set: S.set, ax: k + sd, at: +a[sd][k].toFixed(3), ov: +ov.toFixed(2), A: [A.c, a.min.toArray().map((v) => +v.toFixed(2)), a.max.toArray().map((v) => +v.toFixed(2))], C: [C.c, c.min.toArray().map((v) => +v.toFixed(2)), c.max.toArray().map((v) => +v.toFixed(2))], thin: thinA || thinC }); } } }
+  return R; };

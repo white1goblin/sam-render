@@ -1,0 +1,22 @@
+<!doctype html><html><body style="margin:0;background:#e6e2d8"><canvas id="c" width="3000" height="1060"></canvas>
+<script type="module">
+import * as T from './toon.js';
+const im = new Image(); im.src = 'assets/ph/detail_fabric.jpg'; await new Promise(r => { im.onload = r; im.onerror = r; }); window.FABRIC_IMG = im;
+const c = document.getElementById('c'), g = c.getContext('2d'); g.fillStyle = '#ece8de'; g.fillRect(0, 0, 3000, 1060);
+const off = document.createElement('canvas'); off.width = 600; off.height = 1000; const og = off.getContext('2d');
+const HY = +(new URLSearchParams(location.search).get('hy') || 0);
+function cell(key, o, rick, x, y, label) {
+  og.clearRect(0, 0, 600, 1000); globalThis.RICK_FACE = rick; const p = new T.Pen(og); T.samFront(p, key, { seed: 7, ...o });
+  g.drawImage(off, 140, HY, 300, 300, x, y, 290, 290);
+  g.fillStyle = '#222'; g.font = '700 24px Arial'; g.fillText(label, x + 8, y + 318);
+}
+const R = [
+ [['sam','neutral',0,'Sam OLD'],['sam','smile',1,'smile'],['sam','worried',1,'worried'],['sam','determined',1,'determined'],['sam','smug',1,'smug'],['sam','shocked',1,'shocked'],['sam','awkward',1,'awkward'],['sam','proud',1,'proud'],['sam','laughR',1,'laugh'],['sam','sadR',1,'sad']],
+ [['ray','stern',0,'Ray OLD'],['ray','smile',1,'Ray NEW'],['ray','angryR',1,'Ray angry'],['hollis','smile',0,'Hollis OLD'],['hollis','smile',1,'Hollis NEW'],['hollis','skeptic',1,'Hollis skeptic'],['mia','smile',0,'Mia OLD'],['mia','smug',1,'Mia NEW'],['linda','worried',1,'Linda NEW'],['flea','smile',1,'flea NEW']],
+ [['inspector','stern',0,'inspector OLD'],['inspector','skeptic',1,'inspector NEW'],['buyer','smug',1,'buyer NEW'],['kidA','proud',1,'kidA NEW'],['kidB','shocked',1,'kidB NEW'],['landlord','angryR',1,'landlord NEW'],['dee','determined',1,'Dee NEW'],['sam12','shocked',1,'Sam 12'],['rayYoung','proud',1,'Ray young'],['custC','worried',1,'custC NEW']],
+];
+const R2 = [[['sam','angry',0,'Sam OLD angry'],['sam','fume',1,'fume'],['sam','rage',1,'rage'],['sam','blushGrin',1,'embarrassed'],['sam','sweat',1,'nervous'],['sam','awkward',1,'awkward'],['sam','shocked',1,'shocked'],['ray','rage',1,'Ray rage'],['landlord','fume',1,'landlord fume'],['linda','blushGrin',1,'Linda blush']]];
+const SET = new URLSearchParams(location.search).get('set') === '2' ? R2 : R;
+SET.forEach((row, j) => row.forEach(([k, e, r, l], i) => cell(k, { expr: e }, !!r, 10 + i * 298, 20 + j * 340, l)));
+window.ready = true;
+</script></body></html>

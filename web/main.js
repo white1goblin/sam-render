@@ -261,7 +261,7 @@ const trailer = (parent, x, z, ry = 0) => { const g = grp(parent, x, 0, z, ry);
 // ---------- car (generic sedan / pickup / police; ~4.6 m) ----------
 const car = (parent, x, z, ry = 0, col = '#3a5a8a', kind = 'sedan') => { const g = grp(parent, x, 0, z, ry); const bm = toon({ color: col, roughness: 0.25, clearcoat: 0.9, clearcoatRoughness: 0.1 });
   const L = 4.6, W = 1.8; add(tbox(W, 0.6, L, 1), bm, 0, 0.62, 0, g); add(tbox(W - 0.04, 0.12, L - 0.3, 1), bm, 0, 0.98, 0, g);
-  if (kind === 'pickup') { add(tbox(W - 0.1, 0.55, 1.6, 1), bm, 0, 1.25, 0.55, g); add(tbox(W - 0.14, 0.42, 1.5, 1), M.pane, 0, 1.28, 0.55, g); add(tbox(W, 0.4, 1.9, 1), bm, 0, 1.12, -1.3, g).scale.y = 0.6; add(tbox(W - 0.2, 0.05, 1.7, 1), M.rubber, 0, 1.0, -1.3, g); }
+  if (kind === 'pickup') { add(tbox(W - 0.1, 0.55, 1.6, 1), bm, 0, 1.25, 0.55, g); add(tbox(W - 0.14, 0.42, 1.5, 1), M.pane, 0, 1.28, 0.55, g); add(tbox(W, 0.4, 1.9, 1), bm, 0, 1.12, -1.3, g).scale.y = 0.6; add(tbox(W - 0.2, 0.05, 1.66, 1), M.rubber, 0, 1.0, -1.3, g); }
   else { add(tbox(W - 0.14, 0.55, 2.4, 1), bm, 0, 1.3, -0.2, g); add(tbox(W - 0.1, 0.44, 2.3, 1), M.pane, 0, 1.3, -0.2, g); }
   for (const [sx, sz] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) { add(new THREE.CylinderGeometry(0.34, 0.34, 0.24, 20).rotateZ(Math.PI / 2), M.rubber, sx * 0.86, 0.34, sz * 1.45, g); add(new THREE.CylinderGeometry(0.2, 0.2, 0.25, 14).rotateZ(Math.PI / 2), M.chrome, sx * 0.87, 0.34, sz * 1.45, g); }
   for (const s of [-1, 1]) { add(box(0.34, 0.14, 0.04), glowM('#fff4d8'), s * 0.6, 0.78, L / 2 + 0.01, g, nocast); add(box(0.3, 0.12, 0.04), glowM('#d82a2a'), s * 0.65, 0.8, -L / 2 - 0.01, g, nocast); }
@@ -307,8 +307,8 @@ const HS = {};
   add(new THREE.PlaneGeometry(260, 140).rotateX(-Math.PI / 2), M.lawn, 0, 0, -20, g, nocast).material = texM(lawnT, 60, 32, { roughness: 1, normalMap: PH.grassN, normalScale: new THREE.Vector2(0.6, 0.6) });
   add(new THREE.PlaneGeometry(260, 8).rotateX(-Math.PI / 2), texM(asphaltT, 40, 1.3, { roughness: 0.95 }), 0, 0.012, 17, g, nocast);
   add(tbox(260, 0.15, 0.25, 1), M.concrete, 0, 0.075, 12.92, g, nocast); add(tbox(260, 0.15, 0.25, 1), M.concrete, 0, 0.075, 21.08, g, nocast);
-  add(new THREE.PlaneGeometry(260, 1.7).rotateX(-Math.PI / 2), texM(concreteT(), 150, 1), 0, 0.02, 11.9, g, nocast); add(new THREE.PlaneGeometry(260, 1.7).rotateX(-Math.PI / 2), texM(concreteT(), 150, 1), 0, 0.02, 22.1, g, nocast);
-  for (let x = -128; x < 130; x += 1.7) add(box(0.02, 0.005, 1.7), M.dark, x, 0.026, 11.9, g, nocast);
+  add(new THREE.PlaneGeometry(260, 1.7).rotateX(-Math.PI / 2), texM(concreteT(), 150, 1), 0, 0.03, 11.9, g, nocast); add(new THREE.PlaneGeometry(260, 1.7).rotateX(-Math.PI / 2), texM(concreteT(), 150, 1), 0, 0.02, 22.1, g, nocast);
+  for (let x = -128; x < 130; x += 1.7) add(box(0.02, 0.005, 1.7), M.dark, x, 0.035, 11.9, g, nocast);
   add(new THREE.PlaneGeometry(3.4, 15).rotateX(-Math.PI / 2), texM(gravelT, 2, 9), 6, 0.018, 5.2, g, nocast); // gravel driveway
   for (const s of [-1, 1]) add(box(0.08, 0.06, 15), M.concreteD, 6 + s * 1.74, 0.03, 5.2, g, nocast);
   add(new THREE.PlaneGeometry(1.2, 9.5).rotateX(-Math.PI / 2), texM(concreteT(), 1, 6), -4.2, 0.02, 7.0, g, nocast); // front walk
@@ -349,7 +349,7 @@ const HS = {};
     add(cyl(0.05, 0.05, 2.6, 8), M.steelD, -2.85, 1.3, 0.1, gg, nocast); // downspout
   }
   mailbox(g, H_.mailbox[0], H_.mailbox[2], 0);
-  HS.bins = [bin(g, 2.4, 12.2, 0.1), bin(g, 1.6, 12.25, -0.2, '#2a4a8a')];
+  HS.bins = [bin(g, 2.4, 12.42, 0.1), bin(g, 1.6, 12.45, -0.2, '#2a4a8a')];
   picket(g, -9.5, 11.0, -1.2, 11.0); picket(g, -9.5, 11.0, -9.5, 2.0); bush(-8.6, 0.8, 1.1); bush(-6.8, 0.7, 0.9, true); bush(0.2, 0.7, 1.0, true); bush(1.6, 0.6, 1.1); bush(-9.2, -2.5, 1.2);
   add(new THREE.PlaneGeometry(9.2, 1.2).rotateX(-Math.PI / 2), M.mulch, -4.2, 0.015, 0.75, g, nocast);
   tree(-13, 6, 10, 0); tree(13, -6, 12, 2); tree(-6, -14, 11, 1); tree(4, -15, 9, 3); tree(-22, 9, 9, 4); tree(26, 8, 10, 0);
@@ -363,12 +363,12 @@ const HS = {};
   mowerSet('drag3', [{ x: 0, y: 0, z: 0, ry: Math.PI / 2, col: '#c8322e' }, { x: -1.0, y: 0, z: 0.1, ry: Math.PI / 2 + 0.2, col: '#2f8a4a' }, { x: -2.0, y: 0, z: -0.05, ry: Math.PI / 2 - 0.15, col: '#e8b830' }], false, g);
   mowerSet('man1', [{ x: 0, y: 0, z: 0, ry: 0, col: '#2f5aa8' }], false, g); mowerSet('sleep', grid(-0.9, -0.6, 3, 2, 0.6, 0.7, 0.3, 0.1, 21), false, g);
   // three broken mowers on trash day at the curbs of three houses along the street (x = -26, -48, 30)
-  mowerSet('curb3', [{ x: -25.4, y: 0, z: 12.25, ry: 0.6, col: '#c8322e' }, { x: -47.4, y: 0, z: 12.3, ry: -0.4, col: '#2f8a4a' }, { x: 29.0, y: 0, z: 12.35, ry: 0.3, col: '#e8b830' }], false, g);
-  for (const [x, c] of [[-26.6, '#2f5a3a'], [-48.6, '#3a3a40'], [31, '#2a4a8a']]) { bin(g, x, 12.2, 0.2, c); bin(g, x - 0.8, 12.15, -0.3, '#2f5a3a'); const bxX = x > 0 ? x + 0.95 : x - 1.75; add(tbox(0.6, 0.5, 0.5, 0.5), M.cardboard, bxX, 0.25, 12.0, g, ).rotation.y = 0.25; add(tbox(0.62, 0.02, 0.3, 0.3), M.cardboard, bxX - 0.12, 0.52, 11.82, g, nocast).rotation.x = -0.5; }
+  mowerSet('curb3', [{ x: -25.3, y: 0, z: 12.4, ry: 0.6, col: '#c8322e' }, { x: -47.3, y: 0, z: 12.4, ry: -0.4, col: '#2f8a4a' }, { x: 29.0, y: 0, z: 12.4, ry: 0.3, col: '#e8b830' }], false, g);
+  for (const [x, c] of [[-26.6, '#2f5a3a'], [-48.6, '#3a3a40'], [31, '#2a4a8a']]) { bin(g, x, 12.42, 0.2, c); bin(g, x - 0.8, 12.42, -0.3, '#2f5a3a'); const bxX = x > 0 ? x + 0.95 : x - 1.75; add(tbox(0.6, 0.5, 0.5, 0.5), M.cardboard, bxX, 0.25, 12.45, g, ).rotation.y = 0.25; add(tbox(0.62, 0.02, 0.3, 0.3), M.cardboard, bxX - 0.12, 0.52, 12.27, g, nocast).rotation.x = -0.5; }
   // neighbouring houses (same street + across)
   const NB = [[-26, 0, M.sidingB, M.roofB], [-48, 0, M.sidingC, M.roofC], [-70, 0, M.sidingD, M.roofA], [30, 0, M.sidingE, M.roofC], [52, 0, M.sidingD, M.roofB], [-30, 34, M.sidingC, M.roofA, Math.PI], [-6, 34, M.sidingD, M.roofB, Math.PI], [18, 34, M.sidingB, M.roofC, Math.PI], [42, 34, M.sidingA, M.roofA, Math.PI], [-54, 34, M.sidingE, M.roofB, Math.PI]];
   HS.nb = NB.map(([x, z, s, r, ry]) => house(g, x, z, { siding: s, roof: r, ry: ry || 0, w: 9 + (Math.abs(x) % 3), d: 8, pane: nightGlow('#ffc878'), shutter: toon({ color: ['#2f4a6a', '#6a2a2a', '#2a5a3a'][Math.abs(x) % 3] }), doorM: toon({ color: ['#2a4a6a', '#e8e0d0', '#3a6a4a'][Math.abs(x / 2) % 3 | 0] }) }));
-  for (const [x, z] of [[-26, 0], [-48, 0], [30, 0], [52, 0]]) { add(new THREE.PlaneGeometry(3, 12).rotateX(-Math.PI / 2), M.concreteD, x + 6.5, 0.016, 6, g, nocast); add(new THREE.PlaneGeometry(1.1, 10).rotateX(-Math.PI / 2), M.concrete, x, 0.016, 6, g, nocast); mailbox(g, x + 4.6, 11.7); }
+  for (const [x, z] of [[-26, 0], [-48, 0], [30, 0], [52, 0]]) { add(new THREE.PlaneGeometry(3, 12).rotateX(-Math.PI / 2), M.concreteD, x + 6.5, 0.016, 6, g, nocast); add(new THREE.PlaneGeometry(1.1, 10).rotateX(-Math.PI / 2), M.concrete, x, 0.016, 6, g, nocast); mailbox(g, x + 4.6, 12.55); }
   for (const [x, z] of [[-30, 34], [-6, 34], [18, 34], [42, 34]]) { add(new THREE.PlaneGeometry(1.1, 11).rotateX(-Math.PI / 2), M.concrete, x, 0.016, 28, g, nocast); mailbox(g, x + 4.6, 22.6, Math.PI); }
   for (const x of [-60, -36, -12, 12, 36, 60]) { tree(x + 3, 26, 9 + (x % 7 + 7) % 3, (x / 12 + 9) % 5 | 0); }
   for (const x of [-40, -16, 16, 40]) tree(x, 8.5, 8.5, ((x + 40) / 8) % 5 | 0);
@@ -381,7 +381,7 @@ const HS = {};
   // parked cars along the street + police car + customer cars + the hardware buyer's car (toggled)
   HS.carA = car(g, -36, 15.2, Math.PI / 2, '#8a2a2a'); HS.carB = car(g, 22, 19.0, -Math.PI / 2, '#4a6a8a', 'pickup');
   HS.police = car(g, 2.0, 15.4, Math.PI / 2, '#1c2648', 'police');
-  HS.custCars = [car(g, -6, 15.2, Math.PI / 2, '#d8d4c8', 'pickup'), car(g, 14, 15.2, Math.PI / 2, '#3a6a4a'), car(g, -15, 15.2, Math.PI / 2, '#c8a038'), car(g, 23, 15.2, Math.PI / 2, '#5a5a62', 'pickup'), car(g, -24, 19.0, -Math.PI / 2, '#8a5a3a')];
+  HS.custCars = [car(g, -6, 15.2, Math.PI / 2, '#d8d4c8', 'pickup'), car(g, 18, 15.2, Math.PI / 2, '#3a6a4a'), car(g, -15, 15.2, Math.PI / 2, '#c8a038'), car(g, 23, 15.2, Math.PI / 2, '#5a5a62', 'pickup'), car(g, -24, 19.0, -Math.PI / 2, '#8a5a3a')];
   HS.inspCar = car(g, 12.5, 15.2, Math.PI / 2, '#e8e8e8');
   HS.manCar = car(g, 10.5, 15.4, Math.PI / 2, '#6a4a3a', 'pickup');
 }
@@ -572,7 +572,7 @@ const MS = {};
   for (const z of [8, 16]) add(tbox(240, 0.15, 0.25, 1), M.concrete, 0, 0.075, z + (z === 8 ? -0.12 : 0.12), g, nocast);
   add(new THREE.PlaneGeometry(240, 3.4).rotateX(-Math.PI / 2), texM(concreteT(), 140, 2), 0, 0.02, 6.2, g, nocast); add(new THREE.PlaneGeometry(240, 3.4).rotateX(-Math.PI / 2), texM(concreteT(), 140, 2), 0, 0.02, 17.9, g, nocast);
   add(new THREE.PlaneGeometry(26, 12).rotateX(-Math.PI / 2), texM(concreteT('#b0aca2'), 6, 3), 19, 0.015, 2.5, g, nocast); // gas-station forecourt
-  add(new THREE.PlaneGeometry(11, 10.5).rotateX(-Math.PI / 2), texM(asphaltT, 3, 3), 4.5, 0.014, -0.7, g, nocast); for (let i = 0; i < 5; i++) add(new THREE.PlaneGeometry(0.1, 4.5).rotateX(-Math.PI / 2), M.white, 0 + i * 2.6, 0.02, -3.2, g, nocast); // parking lot
+  add(new THREE.PlaneGeometry(11, 10.5).rotateX(-Math.PI / 2), texM(asphaltT, 3, 3), 4.5, 0.022, -0.7, g, nocast); for (let i = 0; i < 5; i++) add(new THREE.PlaneGeometry(0.1, 4.5).rotateX(-Math.PI / 2), M.white, 0 + i * 2.6, 0.02, -3.2, g, nocast); // parking lot
   const facade = (x, w, h, mat, ry = 0, z = 4.5, d = 10) => { const b = grp(g, x, 0, z, ry); add(tbox(w, h, d, 2), mat, 0, h / 2, -d / 2, b); add(tbox(w + 0.3, 0.4, d + 0.3, 1), M.trimD, 0, h + 0.2, -d / 2, b); return b; };
   // ---- DINER (interior visible; front glass) ----
   { const dg = grp(g, -16, 0, 4.5); MS.diner = dg; const W = 12, D = 10, Hh = 4.0;
@@ -640,7 +640,7 @@ const MS = {};
     // pole sign by the road (old station sign, later repainted)
     { const ps = grp(g, 10.5, 0, 5.5); add(cyl(0.12, 0.12, 5.0, 10), M.steelD, 0, 2.5, 0, ps); add(tbox(2.4, 1.6, 0.25, 0.5), M.white, 0, 5.4, 0, ps); MS.poleD = dynTex(480, 320); for (const s of [-1, 1]) { const pm = add(new THREE.PlaneGeometry(2.2, 1.45), MS.poleD.m, 0, 5.4, s * 0.13, ps, nocast); if (s < 0) pm.rotation.y = Math.PI; } }
     // canopy over the old pump island (pumps removed)
-    { const cp = grp(sg, -2, 0, 5.2); add(tbox(8, 0.6, 4.2, 1), M.white, 0, 4.5, 0, cp); add(tbox(8.04, 0.2, 4.24, 1), M.blue, 0, 4.3, 0, cp); for (const x of [-2.5, 2.5]) add(tbox(0.35, 4.3, 0.35, 0.5), M.white, x, 2.15, 0, cp); add(tbox(5.5, 0.18, 1.0, 0.5), M.concrete, 0, 0.09, 0, cp); for (const x of [-1.5, 1.5]) add(tbox(0.5, 0.06, 0.4, 0.3), M.rust, x, 0.21, 0, cp); add(new THREE.PlaneGeometry(7.6, 4.0).rotateX(Math.PI / 2), glowM('#fff8e8'), 0, 4.19, 0, cp, nocast).visible = false; }
+    { const cp = grp(sg, -2, 0, 5.2); add(tbox(8, 0.6, 4.2, 1), M.white, 0, 4.5, 0, cp); add(tbox(8.04, 0.19, 4.24, 1), M.blue, 0, 4.315, 0, cp); for (const x of [-2.5, 2.5]) add(tbox(0.35, 4.3, 0.35, 0.5), M.white, x, 2.15, 0, cp); add(tbox(5.5, 0.18, 1.0, 0.5), M.concrete, 0, 0.09, 0, cp); for (const x of [-1.5, 1.5]) add(tbox(0.5, 0.06, 0.4, 0.3), M.rust, x, 0.21, 0, cp); add(new THREE.PlaneGeometry(7.6, 4.0).rotateX(Math.PI / 2), glowM('#fff8e8'), 0, 4.19, 0, cp, nocast).visible = false; }
     // interior: front counter (office), shelves of parts, four workbenches (Day 70), pegboards, BRING IT BROKEN sign above the inside of the door
     MS.counter = grp(sg, -4.5, 0, -3.2); add(tbox(2.6, 1.0, 0.6, 0.5), M.oak, 0, 0.5, 0, MS.counter); add(tbox(2.7, 0.05, 0.7, 0.5), M.counter, 0, 1.02, 0, MS.counter); add(tbox(0.36, 0.26, 0.3, 0.2), M.dark, -0.7, 1.18, 0, MS.counter); add(tbox(0.3, 0.2, 0.02, 0.2), glowM('#cfe8c8'), -0.7, 1.2, 0.16, MS.counter, nocast); add(cyl(0.05, 0.05, 0.08, 10), M.chrome, 0.8, 1.08, 0.1, MS.counter);
     MS.cash1 = add(new THREE.PlaneGeometry(0.16, 0.07).rotateX(-Math.PI / 2), texM(cv(128, 56, (q, w, h) => { q.fillStyle = '#a8c890'; q.fillRect(0, 0, w, h); q.strokeStyle = '#5a7a4a'; q.lineWidth = 3; q.strokeRect(4, 4, w - 8, h - 8); })), 0.3, 1.048, 0.12, MS.counter, nocast);
@@ -663,10 +663,10 @@ const MS = {};
       add(new THREE.PlaneGeometry(4, 0.6), signM(signTex(['BAKERY', 'BOOKS', 'BARBER', 'FLOWERS'][i], 600, 90, ['#6a2a2a', '#2a4a6a', '#3a3a3a', '#3a6a3a'][i], '#f4f0e4', 60)), 0, 3.4, 0.03, b, nocast); }
   }
   // ---- working gas station (far west): canopy + pumps + kiosk with window (Mia's night shift) ----
-  { const gs = grp(g, -44, 0, 0); MS.gas = gs; add(new THREE.PlaneGeometry(22, 14).rotateX(-Math.PI / 2), texM(concreteT('#b8b4aa'), 5, 3), 0, 0.016, 1, gs, nocast);
-    add(tbox(12, 0.7, 7, 1), M.white, 0, 5.0, 3.2, gs); add(tbox(12.04, 0.25, 7.04, 1), M.red, 0, 4.7, 3.2, gs); for (const x of [-4, 0, 4]) add(tbox(0.4, 4.6, 0.4, 0.5), M.white, x, 2.3, 3.2, gs);
+  { const gs = grp(g, -44, 0, 0); MS.gas = gs; add(new THREE.PlaneGeometry(22, 14).rotateX(-Math.PI / 2), texM(concreteT('#b8b4aa'), 5, 3), 0, 0.028, 1, gs, nocast);
+    add(tbox(12, 0.7, 7, 1), M.white, 0, 5.0, 3.2, gs); add(tbox(12.04, 0.25, 7.04, 1), M.red, 0, 4.785, 3.2, gs); for (const x of [-4, 0, 4]) add(tbox(0.4, 4.6, 0.4, 0.5), M.white, x, 2.3, 3.2, gs);
     add(new THREE.PlaneGeometry(11.6, 6.6).rotateX(Math.PI / 2), glowM('#fffaf0'), 0, 4.64, 3.2, gs, nocast);
-    for (const x of [-2, 2]) { add(tbox(1.6, 0.2, 0.8, 0.3), M.concrete, x, 0.1, 3.2, gs); const pu = grp(gs, x, 0.2, 3.2); add(tbox(0.7, 1.6, 0.5, 0.3), M.white, 0, 0.8, 0, pu); add(tbox(0.72, 0.3, 0.52, 0.3), M.red, 0, 1.45, 0, pu); add(box(0.4, 0.25, 0.02), glowM('#9ae8c8'), 0, 1.05, 0.26, pu, nocast); add(cyl(0.02, 0.02, 0.8, 6), M.black, 0.4, 0.8, 0.1, pu); }
+    for (const x of [-2, 2]) { add(tbox(1.6, 0.2, 0.8, 0.3), M.concrete, x, 0.1, 3.2, gs); const pu = grp(gs, x, 0.2, 3.2); add(tbox(0.7, 1.6, 0.5, 0.3), M.white, 0, 0.8, 0, pu); add(tbox(0.72, 0.3, 0.52, 0.3), M.red, 0, 1.44, 0, pu); add(box(0.4, 0.25, 0.02), glowM('#9ae8c8'), 0, 1.05, 0.26, pu, nocast); add(cyl(0.02, 0.02, 0.8, 6), M.black, 0.4, 0.8, 0.1, pu); }
     const k = grp(gs, 0, 0, -3); add(tbox(6, 3.2, 4, 1), M.sidingE, 0, 1.6, -2, k); add(tbox(6.2, 0.4, 4.2, 1), M.red, 0, 3.4, -2, k); // lit store interior seen through the big front window: snack shelves, glowing drink coolers, coffee station, posters
     add(new THREE.PlaneGeometry(4.6, 2.0), emisC(cv(1150, 500, (q, w, h) => { const gr = q.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#fff6e2'); gr.addColorStop(1, '#e8dcc4'); q.fillStyle = gr; q.fillRect(0, 0, w, h);
       q.fillStyle = '#f8f8ff'; for (let x = 60; x < w; x += 230) q.fillRect(x, 8, 140, 12);                                  // ceiling tubes
@@ -987,6 +987,14 @@ window.renderFrame = (f) => { PT('idle');
   PT('ov'); return true;
 };
 window.TOTAL = TOTAL; window.DBG = { proj: (k) => { const c = cards.find((c) => c.key.startsWith(k)); c.mesh.updateMatrixWorld(); const v = c.mesh.localToWorld(new THREE.Vector3(0, 0.4, 0)).project(camera); return [v.x.toFixed(2), v.y.toFixed(2), v.z.toFixed(3), c.mesh.renderOrder, c.mat.depthTest, c.mat.opacity, c.mat.transparent, scene.children.includes(c.mesh)].join(","); }, canv: (k) => { const c = cards.find((c) => c.key.startsWith(k)); const d = c.g.getImageData(0, 0, c.W, c.H).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 128) n++; return n + "/" + (d.length / 4) + " vis " + c.mesh.visible + " rot " + c.mesh.rotation.toArray().slice(0,3).map(v=>(+v).toFixed(2)); }, cards: () => cards.filter((c) => c.mesh.visible).map((c) => ({ key: c.key.slice(0, 30), res: c.res, p: c.mesh.position.toArray().map((v) => +v.toFixed(2)), s: c.mesh.scale.x })) };
+// decals: small planes sitting on walls/props get a depth bias toward the camera (kills z-fighting shimmer); materials shared with solid meshes are left alone
+{ scene.updateMatrixWorld(true); const good = new Set(), bad = new Set(); let n = 0;
+  scene.traverse((o) => { if (!o.isMesh || !o.material || Array.isArray(o.material) || o === sky || o.userData.sky || o.userData.cloud) return; if (cards.some((c) => c.mesh === o || c.blob === o)) return;
+    let ok = false; if (o.geometry && o.geometry.type === 'PlaneGeometry') { const b = new THREE.Box3().setFromObject(o), z = b.getSize(new THREE.Vector3()); const vert = Math.min(z.x, z.z) < 0.002 && z.y > 0.002, horiz = z.y < 0.002;
+      ok = (vert && z.y * Math.max(z.x, z.z) < 30) || (horiz && z.x * z.z < 2.5); }
+    (ok ? good : bad).add(o.material); });
+  for (const m of good) if (!bad.has(m)) { m.polygonOffset = true; m.polygonOffsetFactor = -1; m.polygonOffsetUnits = -4; m.needsUpdate = true; n++; }
+  window.DECALS = n; }
 window.ready = true;
 // ---- collision audit (debug only) ----
 const _bx = new THREE.Box3(), _pv = new THREE.Vector3();
@@ -1028,3 +1036,16 @@ const depen = (list, f) => { const S = shotAt(f); if (S.noPush === true) return 
     for (let ring = 1; ring <= 30 && !best; ring++) { const R = ring * 0.04; for (let k = 0; k < 24; k++) { const th = k / 24 * Math.PI * 2, dx = Math.cos(th) * R, dz = Math.sin(th) * R;
         if (hit(a.x + dx, a.z + dz)) continue; const cost = R - 0.25 * R * (dx * cx + dz * cz) / (R * cl); if (cost < bc) { bc = cost; best = [a.x + dx, a.z + dz]; } } }
     return best ? { ...a, x: best[0], z: best[1] } : a; }); };
+// ---- z-fight finder (diagnostic): coplanar same-side faces of overlapping world AABBs ----
+window.ZF = (f) => { const S = shotAt(f); worldState(worldAt(f), f); scene.updateMatrixWorld(true); const B = [];
+  scene.traverse((o) => { if (!o.isMesh || o === sky || o.userData.sky || o.userData.cloud) return; if (cards.some((c) => c.mesh === o || c.blob === o)) return; if (!_visible(o)) return;
+    const e = o.matrixWorld.elements; const ax = Math.abs(e[1]) + Math.abs(e[2]) + Math.abs(e[4]) + Math.abs(e[6]) + Math.abs(e[8]) + Math.abs(e[9]); const rot = ax > 0.02 && !(Math.abs(e[0]) < 0.02 && Math.abs(e[10]) < 0.02);
+    const b = new THREE.Box3().setFromObject(o); if (b.isEmpty()) return; B.push({ b, o, rot, m: (o.material && o.material.uuid) || '', c: o.material && o.material.color ? o.material.color.getHexString() : '' }); });
+  const R = [], ks = ['x', 'y', 'z'];
+  for (let i = 0; i < B.length; i++) for (let j = i + 1; j < B.length; j++) { const A = B[i], C = B[j]; if (A.m === C.m) continue; if (A.rot && C.rot) continue;
+    const a = A.b, c = C.b; let ok = true; for (const k of ks) if (a.max[k] < c.min[k] - 0.003 || c.max[k] < a.min[k] - 0.003) ok = false; if (!ok) continue;
+    for (let d = 0; d < 3; d++) { const k = ks[d], o1 = ks[(d + 1) % 3], o2 = ks[(d + 2) % 3];
+      const ov = Math.max(0, Math.min(a.max[o1], c.max[o1]) - Math.max(a.min[o1], c.min[o1])) * Math.max(0, Math.min(a.max[o2], c.max[o2]) - Math.max(a.min[o2], c.min[o2])); if (ov < 0.02) continue;
+      for (const sd of ['min', 'max']) if (Math.abs(a[sd][k] - c[sd][k]) < 0.0025) { const thinA = a.max[k] - a.min[k] < 0.001, thinC = c.max[k] - c.min[k] < 0.001;
+        R.push({ shot: S.id, set: S.set, ax: k + sd, at: +a[sd][k].toFixed(3), ov: +ov.toFixed(2), A: [A.c, a.min.toArray().map((v) => +v.toFixed(2)), a.max.toArray().map((v) => +v.toFixed(2))], C: [C.c, c.min.toArray().map((v) => +v.toFixed(2)), c.max.toArray().map((v) => +v.toFixed(2))], thin: thinA || thinC }); } } }
+  return R; };

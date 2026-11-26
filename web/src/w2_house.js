@@ -8,8 +8,8 @@ const HS = {};
   add(new THREE.PlaneGeometry(260, 140).rotateX(-Math.PI / 2), M.lawn, 0, 0, -20, g, nocast).material = texM(lawnT, 60, 32, { roughness: 1, normalMap: PH.grassN, normalScale: new THREE.Vector2(0.6, 0.6) });
   add(new THREE.PlaneGeometry(260, 8).rotateX(-Math.PI / 2), texM(asphaltT, 40, 1.3, { roughness: 0.95 }), 0, 0.012, 17, g, nocast);
   add(tbox(260, 0.15, 0.25, 1), M.concrete, 0, 0.075, 12.92, g, nocast); add(tbox(260, 0.15, 0.25, 1), M.concrete, 0, 0.075, 21.08, g, nocast);
-  add(new THREE.PlaneGeometry(260, 1.7).rotateX(-Math.PI / 2), texM(concreteT(), 150, 1), 0, 0.02, 11.9, g, nocast); add(new THREE.PlaneGeometry(260, 1.7).rotateX(-Math.PI / 2), texM(concreteT(), 150, 1), 0, 0.02, 22.1, g, nocast);
-  for (let x = -128; x < 130; x += 1.7) add(box(0.02, 0.005, 1.7), M.dark, x, 0.026, 11.9, g, nocast);
+  add(new THREE.PlaneGeometry(260, 1.7).rotateX(-Math.PI / 2), texM(concreteT(), 150, 1), 0, 0.03, 11.9, g, nocast); add(new THREE.PlaneGeometry(260, 1.7).rotateX(-Math.PI / 2), texM(concreteT(), 150, 1), 0, 0.02, 22.1, g, nocast);
+  for (let x = -128; x < 130; x += 1.7) add(box(0.02, 0.005, 1.7), M.dark, x, 0.035, 11.9, g, nocast);
   add(new THREE.PlaneGeometry(3.4, 15).rotateX(-Math.PI / 2), texM(gravelT, 2, 9), 6, 0.018, 5.2, g, nocast); // gravel driveway
   for (const s of [-1, 1]) add(box(0.08, 0.06, 15), M.concreteD, 6 + s * 1.74, 0.03, 5.2, g, nocast);
   add(new THREE.PlaneGeometry(1.2, 9.5).rotateX(-Math.PI / 2), texM(concreteT(), 1, 6), -4.2, 0.02, 7.0, g, nocast); // front walk
@@ -50,7 +50,7 @@ const HS = {};
     add(cyl(0.05, 0.05, 2.6, 8), M.steelD, -2.85, 1.3, 0.1, gg, nocast); // downspout
   }
   mailbox(g, H_.mailbox[0], H_.mailbox[2], 0);
-  HS.bins = [bin(g, 2.4, 12.2, 0.1), bin(g, 1.6, 12.25, -0.2, '#2a4a8a')];
+  HS.bins = [bin(g, 2.4, 12.42, 0.1), bin(g, 1.6, 12.45, -0.2, '#2a4a8a')];
   picket(g, -9.5, 11.0, -1.2, 11.0); picket(g, -9.5, 11.0, -9.5, 2.0); bush(-8.6, 0.8, 1.1); bush(-6.8, 0.7, 0.9, true); bush(0.2, 0.7, 1.0, true); bush(1.6, 0.6, 1.1); bush(-9.2, -2.5, 1.2);
   add(new THREE.PlaneGeometry(9.2, 1.2).rotateX(-Math.PI / 2), M.mulch, -4.2, 0.015, 0.75, g, nocast);
   tree(-13, 6, 10, 0); tree(13, -6, 12, 2); tree(-6, -14, 11, 1); tree(4, -15, 9, 3); tree(-22, 9, 9, 4); tree(26, 8, 10, 0);
@@ -64,12 +64,12 @@ const HS = {};
   mowerSet('drag3', [{ x: 0, y: 0, z: 0, ry: Math.PI / 2, col: '#c8322e' }, { x: -1.0, y: 0, z: 0.1, ry: Math.PI / 2 + 0.2, col: '#2f8a4a' }, { x: -2.0, y: 0, z: -0.05, ry: Math.PI / 2 - 0.15, col: '#e8b830' }], false, g);
   mowerSet('man1', [{ x: 0, y: 0, z: 0, ry: 0, col: '#2f5aa8' }], false, g); mowerSet('sleep', grid(-0.9, -0.6, 3, 2, 0.6, 0.7, 0.3, 0.1, 21), false, g);
   // three broken mowers on trash day at the curbs of three houses along the street (x = -26, -48, 30)
-  mowerSet('curb3', [{ x: -25.4, y: 0, z: 12.25, ry: 0.6, col: '#c8322e' }, { x: -47.4, y: 0, z: 12.3, ry: -0.4, col: '#2f8a4a' }, { x: 29.0, y: 0, z: 12.35, ry: 0.3, col: '#e8b830' }], false, g);
-  for (const [x, c] of [[-26.6, '#2f5a3a'], [-48.6, '#3a3a40'], [31, '#2a4a8a']]) { bin(g, x, 12.2, 0.2, c); bin(g, x - 0.8, 12.15, -0.3, '#2f5a3a'); const bxX = x > 0 ? x + 0.95 : x - 1.75; add(tbox(0.6, 0.5, 0.5, 0.5), M.cardboard, bxX, 0.25, 12.0, g, ).rotation.y = 0.25; add(tbox(0.62, 0.02, 0.3, 0.3), M.cardboard, bxX - 0.12, 0.52, 11.82, g, nocast).rotation.x = -0.5; }
+  mowerSet('curb3', [{ x: -25.3, y: 0, z: 12.4, ry: 0.6, col: '#c8322e' }, { x: -47.3, y: 0, z: 12.4, ry: -0.4, col: '#2f8a4a' }, { x: 29.0, y: 0, z: 12.4, ry: 0.3, col: '#e8b830' }], false, g);
+  for (const [x, c] of [[-26.6, '#2f5a3a'], [-48.6, '#3a3a40'], [31, '#2a4a8a']]) { bin(g, x, 12.42, 0.2, c); bin(g, x - 0.8, 12.42, -0.3, '#2f5a3a'); const bxX = x > 0 ? x + 0.95 : x - 1.75; add(tbox(0.6, 0.5, 0.5, 0.5), M.cardboard, bxX, 0.25, 12.45, g, ).rotation.y = 0.25; add(tbox(0.62, 0.02, 0.3, 0.3), M.cardboard, bxX - 0.12, 0.52, 12.27, g, nocast).rotation.x = -0.5; }
   // neighbouring houses (same street + across)
   const NB = [[-26, 0, M.sidingB, M.roofB], [-48, 0, M.sidingC, M.roofC], [-70, 0, M.sidingD, M.roofA], [30, 0, M.sidingE, M.roofC], [52, 0, M.sidingD, M.roofB], [-30, 34, M.sidingC, M.roofA, Math.PI], [-6, 34, M.sidingD, M.roofB, Math.PI], [18, 34, M.sidingB, M.roofC, Math.PI], [42, 34, M.sidingA, M.roofA, Math.PI], [-54, 34, M.sidingE, M.roofB, Math.PI]];
   HS.nb = NB.map(([x, z, s, r, ry]) => house(g, x, z, { siding: s, roof: r, ry: ry || 0, w: 9 + (Math.abs(x) % 3), d: 8, pane: nightGlow('#ffc878'), shutter: toon({ color: ['#2f4a6a', '#6a2a2a', '#2a5a3a'][Math.abs(x) % 3] }), doorM: toon({ color: ['#2a4a6a', '#e8e0d0', '#3a6a4a'][Math.abs(x / 2) % 3 | 0] }) }));
-  for (const [x, z] of [[-26, 0], [-48, 0], [30, 0], [52, 0]]) { add(new THREE.PlaneGeometry(3, 12).rotateX(-Math.PI / 2), M.concreteD, x + 6.5, 0.016, 6, g, nocast); add(new THREE.PlaneGeometry(1.1, 10).rotateX(-Math.PI / 2), M.concrete, x, 0.016, 6, g, nocast); mailbox(g, x + 4.6, 11.7); }
+  for (const [x, z] of [[-26, 0], [-48, 0], [30, 0], [52, 0]]) { add(new THREE.PlaneGeometry(3, 12).rotateX(-Math.PI / 2), M.concreteD, x + 6.5, 0.016, 6, g, nocast); add(new THREE.PlaneGeometry(1.1, 10).rotateX(-Math.PI / 2), M.concrete, x, 0.016, 6, g, nocast); mailbox(g, x + 4.6, 12.55); }
   for (const [x, z] of [[-30, 34], [-6, 34], [18, 34], [42, 34]]) { add(new THREE.PlaneGeometry(1.1, 11).rotateX(-Math.PI / 2), M.concrete, x, 0.016, 28, g, nocast); mailbox(g, x + 4.6, 22.6, Math.PI); }
   for (const x of [-60, -36, -12, 12, 36, 60]) { tree(x + 3, 26, 9 + (x % 7 + 7) % 3, (x / 12 + 9) % 5 | 0); }
   for (const x of [-40, -16, 16, 40]) tree(x, 8.5, 8.5, ((x + 40) / 8) % 5 | 0);
@@ -82,7 +82,7 @@ const HS = {};
   // parked cars along the street + police car + customer cars + the hardware buyer's car (toggled)
   HS.carA = car(g, -36, 15.2, Math.PI / 2, '#8a2a2a'); HS.carB = car(g, 22, 19.0, -Math.PI / 2, '#4a6a8a', 'pickup');
   HS.police = car(g, 2.0, 15.4, Math.PI / 2, '#1c2648', 'police');
-  HS.custCars = [car(g, -6, 15.2, Math.PI / 2, '#d8d4c8', 'pickup'), car(g, 14, 15.2, Math.PI / 2, '#3a6a4a'), car(g, -15, 15.2, Math.PI / 2, '#c8a038'), car(g, 23, 15.2, Math.PI / 2, '#5a5a62', 'pickup'), car(g, -24, 19.0, -Math.PI / 2, '#8a5a3a')];
+  HS.custCars = [car(g, -6, 15.2, Math.PI / 2, '#d8d4c8', 'pickup'), car(g, 18, 15.2, Math.PI / 2, '#3a6a4a'), car(g, -15, 15.2, Math.PI / 2, '#c8a038'), car(g, 23, 15.2, Math.PI / 2, '#5a5a62', 'pickup'), car(g, -24, 19.0, -Math.PI / 2, '#8a5a3a')];
   HS.inspCar = car(g, 12.5, 15.2, Math.PI / 2, '#e8e8e8');
   HS.manCar = car(g, 10.5, 15.4, Math.PI / 2, '#6a4a3a', 'pickup');
 }

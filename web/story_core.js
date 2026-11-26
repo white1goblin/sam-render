@@ -67,6 +67,8 @@ const autoFrame = (S, k, c) => { if (S.noFix) return c; const P = actorPts(S, k)
   const fx_ = Math.min(52, lerp(c.fov, Math.max(c.fov, 34), wf) * (1 + 0.4 * (want - push)));
   return { ...c, fov: fx_, pos: [c.pos[0] - u[0] * push, c.pos[1] - u[1] * push, c.pos[2] - u[2] * push] }; };
 const KICK = [], FLASH = [];
+// Rick-style dutch angles on the big emotional beats (degrees)
+const RKD = { s57: 5, s94: -5, s108: -8, s117: 6, s120: -9, s149: 4 };
 export const camAt = (f) => {
   const S = shotAt(f), k = ctx(S, f), K = S.cam; let c;
   if (typeof K === 'function') c = K(k);
@@ -75,6 +77,7 @@ export const camAt = (f) => {
     const pos = n >= 2 ? spline(K.map((x) => x[0]), T) : lerp3(A[0], B[0], u); c = { pos, look: n >= 2 ? spline(K.map((x) => x[1]), T) : lerp3(A[1], B[1], u), fov: lerp(A[2] ?? 40, B[2] ?? 40, u), roll: lerp(A[3] || 0, B[3] || 0, u) }; }
   c = { ...c, pos: [...c.pos], look: [...c.look] }; c.roll = c.roll || 0;
   c = autoFrame(S, k, c);
+  if (globalThis.RICK_FACE !== false && RKD[S.id]) c.roll += RKD[S.id] * smooth(Math.min(1, k.lf / 10));
   const hh = S.hand ?? 1; c.pos[0] += 0.006 * hh * Math.sin(f * 0.043); c.pos[1] += 0.005 * hh * Math.sin(f * 0.057 + 1); c.roll += 0.25 * hh * Math.sin(f * 0.031);
   const sc = dist(c.look, c.pos) * 0.012;
   for (const kf of (S.kicks || [])) { const d = k.lf - kf[0]; if (d >= 0 && d < 8) { const s = (d % 2 ? -1 : 1) * (kf[1] ?? 0.4) * (1 - d / 8); c.look[1] += s * 3 * sc; c.look[0] += s * 2 * sc; c.roll += s * 5; } }
@@ -99,6 +102,23 @@ const gaitFor = (S, lf, idx, key, cam) => { const G = shotPaths(S), row = G.P[lf
   const n_ = (lf > 0 ? 1 : 0) + (lf < S.n - 1 ? 1 : 0) || 1, vx = (b[0] - a[0]) / n_, vz = (b[2] - a[2]) / n_, sp = Math.hypot(vx, vz) * 30;
   const fx_ = cam.look[0] - cam.pos[0], fz_ = cam.look[2] - cam.pos[2], fl = Math.hypot(fx_, fz_) || 1, rx_ = -fz_ / fl, rz_ = fx_ / fl;
   return { sp, dir: sp > 1e-4 ? (vx * rx_ + vz * rz_) * 30 / sp : 0, cum: G.C[lf][idx], s: row[idx][4] }; };
+
+// ---- Rick-style expression pass: per shot/actor remap of the base expression (only when RICK_FACE is on) ----
+const RKX = {
+  s0: { samSocks: { shock: 'shocked' } }, s1: { samSocks: { shock: 'shocked', sad: 'sadR' } }, s5: { samSocks: { sad: 'sadR' } }, s6: { samSocks: { sad: 'sadR' } },
+  s14: { mia3: { smug: 'smug' } }, s19: { lindaHome: { stern: 'skeptic' } }, s20: { sam5: { proud: 'proud' }, mia12: { meh: 'skeptic' } }, s23: { sam12: { nervous: 'sweat' } },
+  s35: { sam: { gulp: 'sweat' } }, s37: { sam: { sad: 'worried' } }, s39: { sam: { puzzled: 'worried' } }, s46: { sam: { puzzled: 'skeptic' } },
+  s51: { sam: { grimace: 'strain' } }, s52: { ray: { stern: 'skeptic' } }, s56: { sam: { grimace: 'fume', frown: 'fume' } }, s57: { sam: { yay: 'laughR' } }, s58: { mia: { smirk: 'smug' } },
+  s61: { sam: { proud: 'proud' } }, s63: { sam: { puzzled: 'skeptic' } }, s66: { sam: { sad: 'awkward' } }, s73: { sam: { wow: 'shocked' }, ray: { smug: 'smug' } },
+  s77: { landlord: { wow: 'shocked' }, sam: { proud: 'proud' } }, s85: { samSocks: { nervous: 'sweat' }, cop: { meh: 'skeptic' } }, s88: { mia: { nervous: 'awkward' } }, s89: { mia: { nervous: 'awkward' } },
+  s94: { samSocks: { shock: 'shocked' }, mia: { smirk: 'smug' } }, s97: { samSocks: { proud: 'determined' } }, s107: { flea: { meh: 'skeptic' } }, s108: { sam: { squint: 'fume' } },
+  s110: { sam: { serious: 'fume' }, flea: { puzzled: 'awkward' } }, s111: { ray: { stern: 'angryR' } }, s113: { inspector: { stern: 'skeptic' } }, s114: { inspector: { stern: 'skeptic' } },
+  s115: { inspector: { stern: 'skeptic' }, neighbor: { angry: 'angryR' } }, s117: { sam: { shock: 'shocked', gulp: 'sweat' } }, s119: { sam: { angry: 'fume' }, mia: { nervous: 'worried' } },
+  s120: { sam: { yell: 'rage' } }, s121: { sam: { frown: 'fume' } }, s124: { sam: { sad: 'sadR' } }, s133: { sam: { nervous: 'awkward', sad: 'blushGrin' } }, s138: { sam: { nervous: 'sweat' } },
+  s141: { dee: { smirk: 'smug' } }, s144: { sam: { puzzled: 'skeptic' }, buyer: { smile: 'smug' } }, s145: { rayShop: { wow: 'shocked' } }, s149: { sam: { serious: 'determined' }, buyer: { shock: 'shocked' } },
+  s152: { rayShop: { beam: 'proud' } }, s169: { sam: { smirk: 'smug' } },
+};
+const rkExpr = (id, key, e) => { if (globalThis.RICK_FACE === false) return e; const m = RKX[id]; if (!m) return e; const a = m[key]; return (a && a[e]) || e; };
 export const actorsAt = (f, T) => {
   const S = shotAt(f), out = []; if (!S.act) return out; const tint = (LIGHTS[S.light] || {}).cardTint || '#ffffff'; let _ai = -1; const _cam = camAt(f), _lf = f - S.a;
   const A = (key, pos, o = {}, ex = {}) => { _ai++; if (!o.noWalk && !o.sit && !o.run && !ex.flat) { const g = gaitFor(S, _lf, _ai, key, _cam); const intent = 'step' in o;
@@ -107,7 +127,7 @@ export const actorsAt = (f, T) => {
         if ((o.L ?? 'hang') === 'hang') o.L = 'walk'; if ((o.R ?? 'hang') === 'hang') o.R = 'walk'; if (o.facing === undefined && Math.abs(wd) > 0.4) o.facing = q(wd * 0.6, 1); }
       else if (intent) o = { ...o, step: 0 }; }
     const seed = ex.seed ?? (key.length * 7 + key.charCodeAt(0)) % 23 + 1, I = idle(f, seed);
-    let expr = o.expr || 'neutral'; const who = SPK(key); if (o.talk !== false && who && speakingAt(who, f) && ((f + seed) >> 2) % 2 === 0) expr = expr + '_t';
+    let expr = rkExpr(S.id, key, o.expr || 'neutral'); const who = SPK(key); if (o.talk !== false && who && speakingAt(who, f) && ((f + seed) >> 2) % 2 === 0) expr = expr + '_t';
     const op = { blink: o.closed ? 1 : blinkAt(f, seed), seed: 3, ...o, expr, headTilt: Math.round(((o.headTilt || 0) + I.headTilt) * 2) / 2 };
     for (const kk of ['wv', 'step', 'lift', 'look', 'tears', 'jarFill', 'signT', 'cordX', 'cordY', 'propDX', 'propDY']) if (typeof op[kk] === 'number') op[kk] = q(op[kk], 2);
     if (typeof op.bob === 'number') op.bob = q(op.bob, 3); if (typeof op.tilt === 'number') op.tilt = q(op.tilt, 1); delete op.talk; delete op.closed;

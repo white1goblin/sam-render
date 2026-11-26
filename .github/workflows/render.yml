@@ -34,6 +34,8 @@ jobs:
           cat spec.txt
         env: { S: '${{ matrix.shard }}' }
       - name: render (2 workers per runner)
+        timeout-minutes: 270
+        continue-on-error: true
         run: |
           SPEC=$(cat spec.txt); [ "$SPEC" = none ] && exit 0
           python3 -c "
@@ -51,4 +53,5 @@ jobs:
           for w in 0 1; do ( S=$(cat s$w); [ "$S" = none ] || until FRAME_TMO=120000 RESUME=1 node render.mjs out "$S"; do echo retry; done ) & done; wait
           ls out | wc -l
       - uses: actions/upload-artifact@v4
+        if: always()
         with: { name: 'frames-${{ matrix.shard }}', path: out/, retention-days: 3, compression-level: 0 }

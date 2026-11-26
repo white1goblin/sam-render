@@ -118,7 +118,7 @@ const trailer = (parent, x, z, ry = 0) => { const g = grp(parent, x, 0, z, ry);
 // ---------- car (generic sedan / pickup / police; ~4.6 m) ----------
 const car = (parent, x, z, ry = 0, col = '#3a5a8a', kind = 'sedan') => { const g = grp(parent, x, 0, z, ry); const bm = toon({ color: col, roughness: 0.25, clearcoat: 0.9, clearcoatRoughness: 0.1 });
   const L = 4.6, W = 1.8; add(tbox(W, 0.6, L, 1), bm, 0, 0.62, 0, g); add(tbox(W - 0.04, 0.12, L - 0.3, 1), bm, 0, 0.98, 0, g);
-  if (kind === 'pickup') { add(tbox(W - 0.1, 0.55, 1.6, 1), bm, 0, 1.25, 0.55, g); add(tbox(W - 0.14, 0.42, 1.5, 1), M.pane, 0, 1.28, 0.55, g); add(tbox(W, 0.4, 1.9, 1), bm, 0, 1.12, -1.3, g).scale.y = 0.6; add(tbox(W - 0.2, 0.05, 1.7, 1), M.rubber, 0, 1.0, -1.3, g); }
+  if (kind === 'pickup') { add(tbox(W - 0.1, 0.55, 1.6, 1), bm, 0, 1.25, 0.55, g); add(tbox(W - 0.14, 0.42, 1.5, 1), M.pane, 0, 1.28, 0.55, g); add(tbox(W, 0.4, 1.9, 1), bm, 0, 1.12, -1.3, g).scale.y = 0.6; add(tbox(W - 0.2, 0.05, 1.66, 1), M.rubber, 0, 1.0, -1.3, g); }
   else { add(tbox(W - 0.14, 0.55, 2.4, 1), bm, 0, 1.3, -0.2, g); add(tbox(W - 0.1, 0.44, 2.3, 1), M.pane, 0, 1.3, -0.2, g); }
   for (const [sx, sz] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) { add(new THREE.CylinderGeometry(0.34, 0.34, 0.24, 20).rotateZ(Math.PI / 2), M.rubber, sx * 0.86, 0.34, sz * 1.45, g); add(new THREE.CylinderGeometry(0.2, 0.2, 0.25, 14).rotateZ(Math.PI / 2), M.chrome, sx * 0.87, 0.34, sz * 1.45, g); }
   for (const s of [-1, 1]) { add(box(0.34, 0.14, 0.04), glowM('#fff4d8'), s * 0.6, 0.78, L / 2 + 0.01, g, nocast); add(box(0.3, 0.12, 0.04), glowM('#d82a2a'), s * 0.65, 0.8, -L / 2 - 0.01, g, nocast); }

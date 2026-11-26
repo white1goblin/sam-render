@@ -12,7 +12,7 @@ const MS = {};
   for (const z of [8, 16]) add(tbox(240, 0.15, 0.25, 1), M.concrete, 0, 0.075, z + (z === 8 ? -0.12 : 0.12), g, nocast);
   add(new THREE.PlaneGeometry(240, 3.4).rotateX(-Math.PI / 2), texM(concreteT(), 140, 2), 0, 0.02, 6.2, g, nocast); add(new THREE.PlaneGeometry(240, 3.4).rotateX(-Math.PI / 2), texM(concreteT(), 140, 2), 0, 0.02, 17.9, g, nocast);
   add(new THREE.PlaneGeometry(26, 12).rotateX(-Math.PI / 2), texM(concreteT('#b0aca2'), 6, 3), 19, 0.015, 2.5, g, nocast); // gas-station forecourt
-  add(new THREE.PlaneGeometry(11, 10.5).rotateX(-Math.PI / 2), texM(asphaltT, 3, 3), 4.5, 0.014, -0.7, g, nocast); for (let i = 0; i < 5; i++) add(new THREE.PlaneGeometry(0.1, 4.5).rotateX(-Math.PI / 2), M.white, 0 + i * 2.6, 0.02, -3.2, g, nocast); // parking lot
+  add(new THREE.PlaneGeometry(11, 10.5).rotateX(-Math.PI / 2), texM(asphaltT, 3, 3), 4.5, 0.022, -0.7, g, nocast); for (let i = 0; i < 5; i++) add(new THREE.PlaneGeometry(0.1, 4.5).rotateX(-Math.PI / 2), M.white, 0 + i * 2.6, 0.02, -3.2, g, nocast); // parking lot
   const facade = (x, w, h, mat, ry = 0, z = 4.5, d = 10) => { const b = grp(g, x, 0, z, ry); add(tbox(w, h, d, 2), mat, 0, h / 2, -d / 2, b); add(tbox(w + 0.3, 0.4, d + 0.3, 1), M.trimD, 0, h + 0.2, -d / 2, b); return b; };
   // ---- DINER (interior visible; front glass) ----
   { const dg = grp(g, -16, 0, 4.5); MS.diner = dg; const W = 12, D = 10, Hh = 4.0;
@@ -80,7 +80,7 @@ const MS = {};
     // pole sign by the road (old station sign, later repainted)
     { const ps = grp(g, 10.5, 0, 5.5); add(cyl(0.12, 0.12, 5.0, 10), M.steelD, 0, 2.5, 0, ps); add(tbox(2.4, 1.6, 0.25, 0.5), M.white, 0, 5.4, 0, ps); MS.poleD = dynTex(480, 320); for (const s of [-1, 1]) { const pm = add(new THREE.PlaneGeometry(2.2, 1.45), MS.poleD.m, 0, 5.4, s * 0.13, ps, nocast); if (s < 0) pm.rotation.y = Math.PI; } }
     // canopy over the old pump island (pumps removed)
-    { const cp = grp(sg, -2, 0, 5.2); add(tbox(8, 0.6, 4.2, 1), M.white, 0, 4.5, 0, cp); add(tbox(8.04, 0.2, 4.24, 1), M.blue, 0, 4.3, 0, cp); for (const x of [-2.5, 2.5]) add(tbox(0.35, 4.3, 0.35, 0.5), M.white, x, 2.15, 0, cp); add(tbox(5.5, 0.18, 1.0, 0.5), M.concrete, 0, 0.09, 0, cp); for (const x of [-1.5, 1.5]) add(tbox(0.5, 0.06, 0.4, 0.3), M.rust, x, 0.21, 0, cp); add(new THREE.PlaneGeometry(7.6, 4.0).rotateX(Math.PI / 2), glowM('#fff8e8'), 0, 4.19, 0, cp, nocast).visible = false; }
+    { const cp = grp(sg, -2, 0, 5.2); add(tbox(8, 0.6, 4.2, 1), M.white, 0, 4.5, 0, cp); add(tbox(8.04, 0.19, 4.24, 1), M.blue, 0, 4.315, 0, cp); for (const x of [-2.5, 2.5]) add(tbox(0.35, 4.3, 0.35, 0.5), M.white, x, 2.15, 0, cp); add(tbox(5.5, 0.18, 1.0, 0.5), M.concrete, 0, 0.09, 0, cp); for (const x of [-1.5, 1.5]) add(tbox(0.5, 0.06, 0.4, 0.3), M.rust, x, 0.21, 0, cp); add(new THREE.PlaneGeometry(7.6, 4.0).rotateX(Math.PI / 2), glowM('#fff8e8'), 0, 4.19, 0, cp, nocast).visible = false; }
     // interior: front counter (office), shelves of parts, four workbenches (Day 70), pegboards, BRING IT BROKEN sign above the inside of the door
     MS.counter = grp(sg, -4.5, 0, -3.2); add(tbox(2.6, 1.0, 0.6, 0.5), M.oak, 0, 0.5, 0, MS.counter); add(tbox(2.7, 0.05, 0.7, 0.5), M.counter, 0, 1.02, 0, MS.counter); add(tbox(0.36, 0.26, 0.3, 0.2), M.dark, -0.7, 1.18, 0, MS.counter); add(tbox(0.3, 0.2, 0.02, 0.2), glowM('#cfe8c8'), -0.7, 1.2, 0.16, MS.counter, nocast); add(cyl(0.05, 0.05, 0.08, 10), M.chrome, 0.8, 1.08, 0.1, MS.counter);
     MS.cash1 = add(new THREE.PlaneGeometry(0.16, 0.07).rotateX(-Math.PI / 2), texM(cv(128, 56, (q, w, h) => { q.fillStyle = '#a8c890'; q.fillRect(0, 0, w, h); q.strokeStyle = '#5a7a4a'; q.lineWidth = 3; q.strokeRect(4, 4, w - 8, h - 8); })), 0.3, 1.048, 0.12, MS.counter, nocast);
@@ -103,10 +103,10 @@ const MS = {};
       add(new THREE.PlaneGeometry(4, 0.6), signM(signTex(['BAKERY', 'BOOKS', 'BARBER', 'FLOWERS'][i], 600, 90, ['#6a2a2a', '#2a4a6a', '#3a3a3a', '#3a6a3a'][i], '#f4f0e4', 60)), 0, 3.4, 0.03, b, nocast); }
   }
   // ---- working gas station (far west): canopy + pumps + kiosk with window (Mia's night shift) ----
-  { const gs = grp(g, -44, 0, 0); MS.gas = gs; add(new THREE.PlaneGeometry(22, 14).rotateX(-Math.PI / 2), texM(concreteT('#b8b4aa'), 5, 3), 0, 0.016, 1, gs, nocast);
-    add(tbox(12, 0.7, 7, 1), M.white, 0, 5.0, 3.2, gs); add(tbox(12.04, 0.25, 7.04, 1), M.red, 0, 4.7, 3.2, gs); for (const x of [-4, 0, 4]) add(tbox(0.4, 4.6, 0.4, 0.5), M.white, x, 2.3, 3.2, gs);
+  { const gs = grp(g, -44, 0, 0); MS.gas = gs; add(new THREE.PlaneGeometry(22, 14).rotateX(-Math.PI / 2), texM(concreteT('#b8b4aa'), 5, 3), 0, 0.028, 1, gs, nocast);
+    add(tbox(12, 0.7, 7, 1), M.white, 0, 5.0, 3.2, gs); add(tbox(12.04, 0.25, 7.04, 1), M.red, 0, 4.785, 3.2, gs); for (const x of [-4, 0, 4]) add(tbox(0.4, 4.6, 0.4, 0.5), M.white, x, 2.3, 3.2, gs);
     add(new THREE.PlaneGeometry(11.6, 6.6).rotateX(Math.PI / 2), glowM('#fffaf0'), 0, 4.64, 3.2, gs, nocast);
-    for (const x of [-2, 2]) { add(tbox(1.6, 0.2, 0.8, 0.3), M.concrete, x, 0.1, 3.2, gs); const pu = grp(gs, x, 0.2, 3.2); add(tbox(0.7, 1.6, 0.5, 0.3), M.white, 0, 0.8, 0, pu); add(tbox(0.72, 0.3, 0.52, 0.3), M.red, 0, 1.45, 0, pu); add(box(0.4, 0.25, 0.02), glowM('#9ae8c8'), 0, 1.05, 0.26, pu, nocast); add(cyl(0.02, 0.02, 0.8, 6), M.black, 0.4, 0.8, 0.1, pu); }
+    for (const x of [-2, 2]) { add(tbox(1.6, 0.2, 0.8, 0.3), M.concrete, x, 0.1, 3.2, gs); const pu = grp(gs, x, 0.2, 3.2); add(tbox(0.7, 1.6, 0.5, 0.3), M.white, 0, 0.8, 0, pu); add(tbox(0.72, 0.3, 0.52, 0.3), M.red, 0, 1.44, 0, pu); add(box(0.4, 0.25, 0.02), glowM('#9ae8c8'), 0, 1.05, 0.26, pu, nocast); add(cyl(0.02, 0.02, 0.8, 6), M.black, 0.4, 0.8, 0.1, pu); }
     const k = grp(gs, 0, 0, -3); add(tbox(6, 3.2, 4, 1), M.sidingE, 0, 1.6, -2, k); add(tbox(6.2, 0.4, 4.2, 1), M.red, 0, 3.4, -2, k); // lit store interior seen through the big front window: snack shelves, glowing drink coolers, coffee station, posters
     add(new THREE.PlaneGeometry(4.6, 2.0), emisC(cv(1150, 500, (q, w, h) => { const gr = q.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#fff6e2'); gr.addColorStop(1, '#e8dcc4'); q.fillStyle = gr; q.fillRect(0, 0, w, h);
       q.fillStyle = '#f8f8ff'; for (let x = 60; x < w; x += 230) q.fillRect(x, 8, 140, 12);                                  // ceiling tubes

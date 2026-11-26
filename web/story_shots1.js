@@ -145,10 +145,10 @@ shot(63, { set: 'kit', light: 'kitD', note: 'Top-down insert: Sam\u2019s noteboo
 
 // =============================== DAY 2: TRASH DAY ===============================
 shot(65, { set: 'house', light: 'day', tag: 'DAY 2', flash: 0.4, note: 'Trash day: bins at every curb, morning; Sam steps out of the drive onto the sidewalk', cam: [[H(-6, 1.0, 15.5), H(2, 1.0, 11.5), 44], [H(-3, 1.2, 15.8), H(3.5, 1.0, 11.5), 40]],
-  act: (k, A) => { const W_ = walkP(k, H(5.6, 0, 9.5), H(3.0, 0, 12.0), 0, k.n); A('sam', W_.pos, { expr: 'calm', step: W_.step, L: 'hang' }); } });
+  act: (k, A) => { const W_ = walkP(k, H(5.6, 0, 9.5), H(2.0, 0, 11.45), 0, k.n); A('sam', W_.pos, { expr: 'calm', step: W_.step, L: 'hang' }); } });
 shot(67, { set: 'house', light: 'day', note: 'Tracking alongside Sam down the whole street; houses slide by; three broken mowers come into view at the curbs', ease: 'lin',
   cam: (k) => { const x = lerp(-4, -44, k.t); return { pos: [x + 3, 1.5, 17.5], look: [x - 1.5, 1.0, 11.8], fov: 40 }; },
-  act: (k, A) => { const W_ = walkP(k, H(-2.5, 0, 12.0), H(-45, 0, 12.0), 0, k.n, 0.8); A('sam', W_.pos, { expr: 'puzzled', step: W_.step, look: -0.4 }); }, w: () => ({ mowers: { curb3: 3 } }) });
+  act: (k, A) => { const W_ = walkP(k, H(-2.5, 0, 11.45), H(-45, 0, 11.45), 0, k.n, 0.8); A('sam', W_.pos, { expr: 'puzzled', step: W_.step, look: -0.4 }); }, w: () => ({ mowers: { curb3: 3 } }) });
 shot(68, { set: 'house', light: 'day', note: 'Broken lawn mowers next to the garbage: close on one at the curb, then two quick whip-pans to the others', ease: 'lin', w: () => ({ mowers: { curb3: 3 } }),
   cam: (k) => { const i = Math.min(2, Math.floor(k.t * 3)), u = smooth((k.t * 3) % 1); const X = [-25.4, -47.4, 29.0][i]; return { pos: [X + 1.3 - 0.4 * u, 0.85, 14.3 - 0.3 * u], look: [X, 0.35, 12.25], fov: 36 }; },
   kicks: [[0, 0.2]], focus: (k) => { const i = Math.min(2, Math.floor(k.t * 3)); return [[-25.4, -47.4, 29.0][i], 0.35, 12.25]; } });
@@ -158,9 +158,9 @@ shot(70, { set: 'house', light: 'day', note: 'Spring cleaning: neighbors carry b
 shot(72, { set: 'house', light: 'day', note: 'Crane up high over the yards: every lawn in town will need cutting', cam: [[H(-10, 2, 24), H(-10, 0, 0), 44], [H(-6, 22, 34), H(-10, 0, -6), 52]] });
 shot(73, { set: 'house', light: 'day', note: 'Insert: Sam\u2019s phone — marketplace listings: used mowers that run, $110-$140', cam: [[H(-45, 1.6, 12.75), H(-45, 1.36, 12.2), 34], [H(-45, 1.55, 12.6), H(-45, 1.36, 12.2), 30]],
   w: () => ({ mowers: { curb3: 3 }, phone: { pos: H(-45, 1.36, 12.2), rot: [-0.4, 0, 0], screen: { mode: 'listing' } } }), focus: H(-45, 1.36, 12.2), cinf: 5 });
-shot(74, { set: 'house', light: 'day', note: 'He drags all three home: comic wide, Sam hauling a train of three mowers down the sidewalk, sweating', cam: [[H(-8, 1.1, 16.5), H(-4, 0.8, 12), 40], [H(-1, 1.3, 16.5), H(2, 0.8, 12), 40]],
-  w: (k) => { const x = lerp(-8, 3.5, k.t); return { mowers: { drag3: 3 }, mpos: { drag3: [x, 0, 12.1] } }; },
-  act: (k, A) => { const x = lerp(-8, 3.5, k.t); A('sam', H(x + 0.7, 0, 12.0), { expr: 'grimace', L: 'reach', R: 'reach', lift: -0.3, step: q((k.lf / 14) % 1, 2), sweat: true, tilt: -5 }); } });
+shot(74, { set: 'house', light: 'day', note: 'He drags all three home: comic wide, Sam hauling a train of three mowers down the sidewalk, sweating', cam: [[H(-9, 1.1, 16.5), H(-5, 0.8, 11.6), 40], [H(-2, 1.3, 16.5), H(1, 0.8, 11.6), 40]],
+  w: (k) => { const x = lerp(-9, 1.8, k.t); return { mowers: { drag3: 3 }, mpos: { drag3: [x, 0, 11.5] } }; },
+  act: (k, A) => { const x = lerp(-9, 1.8, k.t); A('sam', H(x + 0.7, 0, 11.45), { expr: 'grimace', L: 'reach', R: 'reach', lift: -0.3, step: q((k.lf / 14) % 1, 2), sweat: true, tilt: -5 }); } });
 shot(75, { set: 'house', light: 'day', note: 'Ray watches from the porch, shaking his head: "Get a real job, Sam."', cam: [[H(-1.8, 1.6, 6.0), H(-4.6, 1.45, 1.3), 38], [H(-2.6, 1.65, 5.0), H(-4.6, 1.55, 1.3), 34]],
   act: (k, A) => A('ray', H(-4.6, 0.45, 1.3), { expr: k.lf > k.w(76) - 3 ? 'stern' : 'meh', L: 'cross', R: 'cross', headTilt: k.lf < k.w(76) ? 8 * Math.sin(k.lf * 0.35) : 0 }) });
 
