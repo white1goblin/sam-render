@@ -196,7 +196,9 @@ const samLate = (p, prop, arms, u, opts, cx, hc, H) => {
   if (O.copCap) { p.poly([[cx - 7 * u, hc - 1.02 * H.b], [cx + 7 * u, hc - 1.02 * H.b], [cx + 5 * u, hc - 0.82 * H.b], [cx - 5 * u, hc - 0.82 * H.b]], "#e8c45a", 1.4 * u); }
   if (!prop) return; const fn = PROPS[prop]; if (!fn) return;
   const hand = opts.propHand === "L" ? arms[0].pts[2] : arms[1].pts[2];
-  const [x, y] = opts.propAt ? [cx + opts.propAt[0] * u, hc + opts.propAt[1] * u] : [hand[0] + (opts.propDX || 0) * u, hand[1] + (opts.propDY || 0) * u];
+  const hug = prop === "box" && opts.L === "belly" && opts.R === "belly" && opts.propAt && opts.propAt[1] === 300;
+  const lift = !hug && prop === "box" && opts.propAt && opts.propAt[1] === 300 && (opts.R === "hold" || opts.L === "hold");
+  const [x, y] = lift ? [hand[0], hand[1] + 14 * u] : hug ? [(arms[0].pts[2][0] + arms[1].pts[2][0]) / 2, (arms[0].pts[2][1] + arms[1].pts[2][1]) / 2 - 6 * u] : opts.propAt ? [cx + opts.propAt[0] * u, hc + opts.propAt[1] * u] : [hand[0] + (opts.propDX || 0) * u, hand[1] + (opts.propDY || 0) * u];
   fn(p, x, y, u, opts);
 };
 
