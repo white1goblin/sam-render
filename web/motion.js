@@ -37,9 +37,9 @@ export const camFromKeys = (K, f, { creep = 0.0012, kicks = [] } = {}) => {
 };
 /** Idle life for a card: breathing bob + small sway, deterministic per seed. Use on EVERY on-screen character. */
 export const idle = (f, seed = 1) => ({
-  bob: 0.006 * Math.sin((f + seed * 11) * 0.11),
-  tilt: 1.2 * Math.sin((f + seed * 7) * 0.05),
-  headTilt: 1.5 * Math.sin((f + seed * 5) * 0.037 + 1),
+  bob: 0.006 * Math.sin((f + seed * 11) * (2 * Math.PI * 21 / 1184)),   // periods divide TOTAL=1184 -> seamless loop
+  tilt: 1.2 * Math.sin((f + seed * 7) * (2 * Math.PI * 9 / 1184)),
+  headTilt: 1.5 * Math.sin((f + seed * 5) * (2 * Math.PI * 7 / 1184) + 1),
 });
 /** Blink: 4-frame lid every 0.5-2.3 s. */
 export const blinkAt = (f, seed) => { const per = 38 + (seed * 17) % 31, ph = (f + seed * 13) % per; return ph < 2 ? 0.5 : ph < 4 ? 1 : 0; };

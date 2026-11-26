@@ -1,8 +1,9 @@
-// Story engine for "Sam — Day 0 to Day 100" (3D). Pure functions of the frame. Shots are declared in story_shots.js.
+// Story engine for "The $9.99 Trap" (vertical 1080x1920, adapted from the Sam 3D engine). Pure functions of the frame. Shots: story_shots.js.
 import { M as E_, idle, blinkAt, q, clamp, lerp, lerp3, ramp, spline } from './motion.js';
 import { SENT, SEGS } from './timing.js';
 export { SENT, SEGS, E_, q, clamp, lerp, lerp3, ramp };
-export const FPS = 30, TOTAL = 18273; // voice.wav 609.091 s
+export const FPS = 30, TOTAL = 1184; // voice.wav 39.46 s
+export const LOOP = (f, k = 1) => Math.sin(2 * Math.PI * k * f / TOTAL); // ambient motion periodic in TOTAL -> last frame flows into frame 0
 export const smooth = E_.smooth, eo = E_.easeOut, ei = E_.easeIn, bk = E_.back;
 export const pulse = (f, f0, len = 14) => { const t = (f - f0) / len; return t < 0 || t > 1 ? 0 : Math.sin(Math.PI * t); };
 export const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
@@ -13,21 +14,12 @@ const BASE = { az: 40, el: 38, sky: '#a8c8f0', ground: '#5a6a3a', hemi: 1.15, su
   rimCol: '#ffd090', rimI: 1.0, coreI: 0.5, vig: 0.24, shadowExt: 18, envI: 0.35, expo: 1.0, cardTint: '#fff8ee', hazeH: 0.07, hemiK: 0.42 };
 const INT = { ...BASE, fog: '#000000', fogNear: 300, fogFar: 2000, shadowExt: 6, hemiK: 0.42 };
 export const LIGHTS = {
-  day: BASE,
-  golden: { ...BASE, az: 250, el: 14, sun: '#ffc890', sunI: 2.1, sky: '#f8d0a8', ground: '#6a5a3a', fog: '#f0d0b0', skyTint: '#ffd8b0', gain: '#fff0dc', rimCol: '#ffb060', rimI: 1.3, cardTint: '#fff0dc', sat: 1.12 },
-  memory: { ...BASE, az: 255, el: 9, sun: '#ffb070', sunI: 1.9, sky: '#f8c098', ground: '#6a4a3a', fog: '#e8b898', skyTint: '#ffc0a0', gain: '#ffe8cc', lift: '#100804', rimCol: '#ffa050', rimI: 1.4, cardTint: '#ffeacc', sat: 0.92, vig: 0.42 },
-  night: { ...BASE, az: 200, el: 42, sun: '#8aa8e8', sunI: 0.55, sky: '#30406a', ground: '#141820', hemi: 0.95, fog: '#18223a', fogNear: 40, fogFar: 300, night: 1, stars: 1, moon: 1, moonAz: 210, moonEl: 32, gain: '#d8e0ff', rimCol: '#8ab0ff', rimI: 1.2, cardTint: '#c4cce8', sat: 0.95, vig: 0.36, glow: 1 },
-  dawn: { ...BASE, az: 75, el: 7, sun: '#ffb080', sunI: 1.6, sky: '#f0b8a8', ground: '#4a4048', fog: '#e8b8a8', night: 0.15, skyTint: '#ffb8a0', gain: '#ffe8dc', rimCol: '#ff9a70', rimI: 1.4, cardTint: '#ffe4d8', vig: 0.3 },
-  kitN: { ...INT, az: 120, el: 72, sun: '#ffd8a0', sunI: 0.45, sky: '#ffe0b8', ground: '#5a4030', hemi: 0.95, gain: '#ffeedd', rimCol: '#ffb060', rimI: 1.2, cardTint: '#ffecd8', vig: 0.36, glow: 1 },
-  kitD: { ...INT, az: 200, el: 52, sun: '#fff4e0', sunI: 1.5, sky: '#f4ecdc', ground: '#a88a68', hemi: 1.8, gain: '#fffaf2', rimCol: '#ffe0a8', cardTint: '#fffaf2' },
-  garN: { ...INT, az: 100, el: 76, sun: '#ffd8a0', sunI: 0.4, sky: '#e8c8a0', ground: '#4a3a2a', hemi: 0.9, gain: '#ffe8d0', rimCol: '#ffb060', rimI: 1.3, cardTint: '#ffe6cc', vig: 0.4, glow: 1 },
-  garD: { ...INT, az: 160, el: 55, sun: '#fff4e0', sunI: 1.5, sky: '#f0ece0', ground: '#8a8478', hemi: 1.7, gain: '#fffaf2', cardTint: '#fffaf2' },
-  hosp: { ...INT, az: 120, el: 70, sun: '#eef4ff', sunI: 1.1, sky: '#e8f0f8', ground: '#8a9aa0', hemi: 1.7, gain: '#f4f8ff', rimCol: '#c8dcff', cardTint: '#f4f8ff', vig: 0.3 },
-  ware: { ...INT, az: 90, el: 82, sun: '#f0f6ff', sunI: 1.2, sky: '#dfe8f4', ground: '#7a7a7a', hemi: 1.6, gain: '#f0f4ff', rimCol: '#c0d8ff', cardTint: '#f0f4ff', vig: 0.32 },
-  shopD: { ...INT, az: 150, el: 58, sun: '#fff6e8', sunI: 1.6, sky: '#f4f0e8', ground: '#8a8478', hemi: 1.9, gain: '#fffaf2', cardTint: '#fffaf2' },
-  shopN: { ...INT, az: 150, el: 72, sun: '#ffe0b0', sunI: 0.5, sky: '#d8c0a0', ground: '#3a3028', hemi: 1.0, gain: '#ffe8d0', rimCol: '#ffb060', rimI: 1.3, cardTint: '#ffe6cc', vig: 0.4, glow: 1 },
-  diner: { ...INT, az: 130, el: 64, sun: '#fff0d8', sunI: 1.5, sky: '#fff0e0', ground: '#8a5a4a', hemi: 1.9, gain: '#fff6ea', rimCol: '#ffd090', cardTint: '#fff6ea' },
-  office: { ...INT, az: 140, el: 60, sun: '#f4f6ff', sunI: 1.4, sky: '#eef0f4', ground: '#7a6a5a', hemi: 1.8, gain: '#f8f8ff', cardTint: '#f8f8ff' },
+  // boutique: bright, warm-white, soft overhead key (track lights), high fill
+  shop: { ...INT, az: 125, el: 66, sun: '#fff3e2', sunI: 1.55, sky: '#fff6ec', ground: '#c8a888', hemi: 2.0, gain: '#fffaf4', rimCol: '#ffe2b8', rimI: 1.0, coreI: 0.5, cardTint: '#fffaf2', sat: 1.1, vig: 0.2, envI: 0.45, shadowExt: 7 },
+  // display corner: a touch warmer + more contrast (spot on the mannequins)
+  disp: { ...INT, az: 100, el: 58, sun: '#ffe8cc', sunI: 1.75, sky: '#fff0e4', ground: '#b8907a', hemi: 1.75, gain: '#fff6ec', rimCol: '#ffc890', rimI: 1.25, coreI: 0.5, cardTint: '#fff6ee', sat: 1.12, vig: 0.26, envI: 0.45, shadowExt: 7 },
+  // 2003 office: slightly faded, warm-paper grade, fluorescent fill
+  lab: { ...INT, az: 140, el: 62, sun: '#f6f2e4', sunI: 1.35, sky: '#eeece0', ground: '#8a8270', hemi: 1.85, gain: '#fff2dc', lift: '#0a0806', rimCol: '#ffe0b0', rimI: 1.0, cardTint: '#fff4e4', sat: 0.9, vig: 0.32, envI: 0.3, shadowExt: 6 },
 };
 const hex = (s) => { const n = parseInt(s.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
 const mixL = (A, B, t) => { const o = { ...A }; for (const k in B) { const a = A[k], b = B[k]; if (typeof a === 'number' && typeof b === 'number') o[k] = a + (b - a) * t; else if (typeof a === 'string' && typeof b === 'string' && a[0] === '#' && b[0] === '#') { const x = hex(a), y = hex(b); o[k] = '#' + x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join(''); } else o[k] = t < 0.5 ? (a ?? b) : b; } return o; };
@@ -39,7 +31,7 @@ export const sf = (s, w = 0) => (SENT[s][2][w] ?? SENT[s][0]);
 export const shot = (s0, o) => { SH.push({ s0, ...o }); };
 export const SHOTS = [];
 export const finalize = () => {
-  SH.forEach((o) => { o.a = Array.isArray(o.s0) ? sf(o.s0[0], o.s0[1]) - (o.lead ?? 5) : (o.s0 === 0 ? 0 : sf(o.s0) - (o.lead ?? 6)); });
+  SH.forEach((o) => { o.a = o.at != null ? o.at : Array.isArray(o.s0) ? sf(o.s0[0], o.s0[1]) - (o.lead ?? 5) : (o.s0 === 0 ? 0 : sf(o.s0) - (o.lead ?? 6)); });
   SH[0].a = 0; SH.sort((x, y) => x.a - y.a);
   SH.forEach((o, i) => { o.b = i < SH.length - 1 ? SH[i + 1].a - 1 : TOTAL - 1; o.id = 's' + i; o.n = o.b - o.a + 1; o.light = o.light || 'day'; SHOTS.push(o); });
 };
@@ -53,7 +45,7 @@ export const lightFor = (S, f) => { let L = LIGHTS[S.light]; if (S.light2) { con
 // slide the camera back along the view axis (and open the fov to >= 34) with smooth weights so the move stays continuous.
 const _stubC = () => {};
 const actorPts = (S, k) => { const P = []; if (!S.act) return P; try { S.act(k, (key, pos, o = {}, ex = {}) => { const s = (ex.s ?? SCALE[key] ?? 1) * (ex.k ?? 1); P.push([pos[0], pos[1] + 1.45 * s, pos[2], s]); }, _stubC, null); } catch (e) {} return P; };
-const ROOMB = { kit: [97.2, 102.8, -2.3, 2.35], gar: [197.2, 202.8, -3.3, 3.3], hosp: [497.7, 502.3, -2.3, 2.3], main: [312.3, 325.7, -7.7, -0.35] };
+const ROOMB = { shop: [-5.8, 5.8, -5.8, 3.8], lab: [97.2, 102.8, -2.3, 2.35] };
 const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 const autoFrame = (S, k, c) => { if (S.noFix) return c; const P = actorPts(S, k); if (!P.length) return c;
   const L = [c.look[0] - c.pos[0], c.look[1] - c.pos[1], c.look[2] - c.pos[2]], ll = Math.hypot(...L) || 1, u = L.map((x) => x / ll);
@@ -68,7 +60,7 @@ const autoFrame = (S, k, c) => { if (S.noFix) return c; const P = actorPts(S, k)
   return { ...c, fov: fx_, pos: [c.pos[0] - u[0] * push, c.pos[1] - u[1] * push, c.pos[2] - u[2] * push] }; };
 const KICK = [], FLASH = [];
 // Rick-style dutch angles on the big emotional beats (degrees)
-const RKD = { s57: 5, s94: -5, s108: -8, s117: 6, s120: -9, s149: 4 };
+const RKD = {}; // dutch angles are keyed per shot in story_shots.js (cam roll)
 export const camAt = (f) => {
   const S = shotAt(f), k = ctx(S, f), K = S.cam; let c;
   if (typeof K === 'function') c = K(k);
@@ -78,7 +70,7 @@ export const camAt = (f) => {
   c = { ...c, pos: [...c.pos], look: [...c.look] }; c.roll = c.roll || 0;
   c = autoFrame(S, k, c);
   if (globalThis.RICK_FACE !== false && RKD[S.id]) c.roll += RKD[S.id] * smooth(Math.min(1, k.lf / 10));
-  const hh = S.hand ?? 1; c.pos[0] += 0.006 * hh * Math.sin(f * 0.043); c.pos[1] += 0.005 * hh * Math.sin(f * 0.057 + 1); c.roll += 0.25 * hh * Math.sin(f * 0.031);
+  const hh = S.hand ?? 1; c.pos[0] += 0.006 * hh * LOOP(f, 8); c.pos[1] += 0.005 * hh * Math.sin(2 * Math.PI * 11 * f / TOTAL + 1); c.roll += 0.25 * hh * LOOP(f, 6);
   const sc = dist(c.look, c.pos) * 0.012;
   for (const kf of (S.kicks || [])) { const d = k.lf - kf[0]; if (d >= 0 && d < 8) { const s = (d % 2 ? -1 : 1) * (kf[1] ?? 0.4) * (1 - d / 8); c.look[1] += s * 3 * sc; c.look[0] += s * 2 * sc; c.roll += s * 5; } }
   c.flash = 0; c.flashCol = '#ffffff';
@@ -88,9 +80,9 @@ export const camAt = (f) => {
 };
 
 // ---------- actors ----------
-const SPK = (key) => key.startsWith('sam') ? 'SAM' : key.startsWith('mia') ? 'MIA' : key.startsWith('linda') ? 'MOM' : key.startsWith('ray') ? 'RAY' : key === 'hollis' ? 'HOLLIS' : '';
+const SPK = () => ''; // narrator only: nobody lip-syncs
 const speakingAt = (who, f) => { for (const s of SEGS) { if (s[0] > f + 2) break; if (s[2] === who && f >= s[0] - 1 && f <= s[1] + 1) return true; } return false; };
-export const SCALE = { sam1: 0.5, sam5: 0.66, sam9: 0.8, sam12: 0.9, sam15: 0.97, mia3: 0.6, mia12: 0.9, kidA: 0.95, kidB: 0.95, dee: 0.97, linda: 0.97, lindaOff: 0.97, lindaHome: 0.97, mia: 0.97, mia18: 0.97, hollis: 0.96, nurse: 0.96, neighbor: 0.95 };
+export const SCALE = { shopper: 0.92, manager: 0.98, resA: 0.9, resB: 0.95 };
 // ---- gait: per-shot actor paths -> walk phase that plants feet, lateral direction, arm swing, bob ----
 const _paths = new Map();
 const shotPaths = (S) => { let R = _paths.get(S); if (R) return R; R = []; const cum = [];
@@ -104,20 +96,7 @@ const gaitFor = (S, lf, idx, key, cam) => { const G = shotPaths(S), row = G.P[lf
   return { sp, dir: sp > 1e-4 ? (vx * rx_ + vz * rz_) * 30 / sp : 0, cum: G.C[lf][idx], s: row[idx][4] }; };
 
 // ---- Rick-style expression pass: per shot/actor remap of the base expression (only when RICK_FACE is on) ----
-const RKX = {
-  s0: { samSocks: { shock: 'shocked' } }, s1: { samSocks: { shock: 'shocked', sad: 'sadR' } }, s5: { samSocks: { sad: 'sadR' } }, s6: { samSocks: { sad: 'sadR' } },
-  s14: { mia3: { smug: 'smug' } }, s19: { lindaHome: { stern: 'skeptic' } }, s20: { sam5: { proud: 'proud' }, mia12: { meh: 'skeptic' } }, s23: { sam12: { nervous: 'sweat' } },
-  s35: { sam: { gulp: 'sweat' } }, s37: { sam: { sad: 'worried' } }, s39: { sam: { puzzled: 'worried' } }, s46: { sam: { puzzled: 'skeptic' } },
-  s51: { sam: { grimace: 'strain' } }, s52: { ray: { stern: 'skeptic' } }, s56: { sam: { grimace: 'fume', frown: 'fume' } }, s57: { sam: { yay: 'laughR' } }, s58: { mia: { smirk: 'smug' } },
-  s61: { sam: { proud: 'proud' } }, s63: { sam: { puzzled: 'skeptic' } }, s66: { sam: { sad: 'awkward' } }, s73: { sam: { wow: 'shocked' }, ray: { smug: 'smug' } },
-  s77: { landlord: { wow: 'shocked' }, sam: { proud: 'proud' } }, s85: { samSocks: { nervous: 'sweat' }, cop: { meh: 'skeptic' } }, s88: { mia: { nervous: 'awkward' } }, s89: { mia: { nervous: 'awkward' } },
-  s94: { samSocks: { shock: 'shocked' }, mia: { smirk: 'smug' } }, s97: { samSocks: { proud: 'determined' } }, s107: { flea: { meh: 'skeptic' } }, s108: { sam: { squint: 'fume' } },
-  s110: { sam: { serious: 'fume' }, flea: { puzzled: 'awkward' } }, s111: { ray: { stern: 'angryR' } }, s113: { inspector: { stern: 'skeptic' } }, s114: { inspector: { stern: 'skeptic' } },
-  s115: { inspector: { stern: 'skeptic' }, neighbor: { angry: 'angryR' } }, s117: { sam: { shock: 'shocked', gulp: 'sweat' } }, s119: { sam: { angry: 'fume' }, mia: { nervous: 'worried' } },
-  s120: { sam: { yell: 'rage' } }, s121: { sam: { frown: 'fume' } }, s124: { sam: { sad: 'sadR' } }, s133: { sam: { nervous: 'awkward', sad: 'blushGrin' } }, s138: { sam: { nervous: 'sweat' } },
-  s141: { dee: { smirk: 'smug' } }, s144: { sam: { puzzled: 'skeptic' }, buyer: { smile: 'smug' } }, s145: { rayShop: { wow: 'shocked' } }, s149: { sam: { serious: 'determined' }, buyer: { shock: 'shocked' } },
-  s152: { rayShop: { beam: 'proud' } }, s169: { sam: { smirk: 'smug' } },
-};
+const RKX = {};
 const rkExpr = (id, key, e) => { if (globalThis.RICK_FACE === false) return e; const m = RKX[id]; if (!m) return e; const a = m[key]; return (a && a[e]) || e; };
 export const actorsAt = (f, T) => {
   const S = shotAt(f), out = []; if (!S.act) return out; const tint = (LIGHTS[S.light] || {}).cardTint || '#ffffff'; let _ai = -1; const _cam = camAt(f), _lf = f - S.a;
@@ -146,15 +125,10 @@ export const fxAt = (f, T) => { const S = shotAt(f), out = []; if (!S.fx) return
   S.fx(k, FX, pop, T); return out; };
 
 // ---------- world state ----------
-const SETL = { house: 'house', kit: 'kit', gar: 'gar', main: 'main', hosp: 'hosp', ware: 'ware' };
-const wipeAt = (f) => { for (const S of SHOTS) { if (!S.wipe) continue; const t = (f - (S.a - 0.5)) / 14 + 0.5; if (t >= 0 && t <= 1) return { kind: S.wipe, x: (S.wdir || 1) * lerp(0.9, -0.9, t), y: 0.04 * Math.sin(t * 3), d: S.wd ?? 0.7, spin: (S.wspin || 0.4) * (t - 0.5) }; if (S.a > f + 10) break; } return null; };
+const wipeAt = (f) => { for (const S of SHOTS) { if (!S.wipe) continue; const t = (f - (S.a - 0.5)) / (S.wlen || 12) + 0.5; if (t >= 0 && t <= 1) return { kind: S.wipe, x: (S.wdir || 1) * lerp(0.9, -0.9, t), y: 0.04 * Math.sin(t * 3), d: S.wd ?? 0.7, spin: (S.wspin || 0.4) * (t - 0.5) }; if (S.a > f + 20) break; } return null; };
 export const worldAt = (f) => {
   const S = shotAt(f), k = ctx(S, f), L = lightFor(S, f);
-  let W = { set: S.set, night: (L.glow || 0) > 0.5 || (L.night || 0) > 0.5, mowers: {} };
-  if (S.set === 'kit' && W.night) W.extra = { i: 2.2, pos: [100, 1.72, 0.1], col: '#ffd8a0', dist: 7 };
-  if (S.set === 'gar' && W.night) W.extra = { i: 2.6, pos: [200, 2.1, -1.8], col: '#ffd8a0', dist: 8 };
-  if (S.set === 'house' && W.night) { W.extra = { i: 1.6, pos: [-3.35, 2.2, 0.4], col: '#ffd890', dist: 9 }; W.extra2 = { i: 1.2, pos: [4.3, 2.4, -1.6], col: '#ffe0a0', dist: 8 }; }
-  if (S.set === 'main' && W.night) W.extra = { i: 2.0, pos: [319, 3.2, -4.5], col: '#ffe0b0', dist: 12 };
+  let W = { set: S.set };
   if (S.w) W = { ...W, ...S.w(k) };
   W.wipe = wipeAt(f); return W;
 };
@@ -164,26 +138,11 @@ export const dofAt = (f) => { const S = shotAt(f), C = camAt(f); const k = ctx(S
 
 // ---------- screen overlays: chapter titles, day/age tags, camcorder viewfinder, phone REC frame ----------
 const font = (g, sz, w = 900, fam = 'Montserrat, Arial Black, Arial') => { g.font = `${w} ${sz}px ${fam}`; };
-export const overlayAt = (f) => { const S = shotAt(f), k = ctx(S, f); const items = [];
-  if (S.title) { const len = S.titleLen ?? Math.min(S.n, 110), lf = k.lf - (S.titleAt ?? 2); if (lf >= 0 && lf < len) items.push(['T', S.title, S.sub || '', q(lf / len, 2)]); }
-  if (S.tag) { const len = S.tagLen ?? 66, lf = k.lf - (S.tagAt ?? 0); if (lf >= 0 && lf < len) items.push(['G', S.tag, q(lf / len, 2)]); }
-  if (S.vf) items.push(['V', S.vf, Math.floor(f / 15) % 2, S.vfText || 'MAR 14  10:58 PM']);
-  if (S.ov) { const o = S.ov(k); if (o) items.push(['O', JSON.stringify(o)]); }
-  if (!items.length) return null; const key = JSON.stringify(items);
-  return { key, draw: (g, W, H) => { for (const it of items) {
-    if (it[0] === 'T') { const [, title, sub, t] = it; const a = Math.min(1, t / 0.12, (1 - t) / 0.12); const s = bk(Math.min(1, t / 0.12), 1.8); g.save(); g.globalAlpha = Math.max(0, a); g.translate(150, H - 260); g.scale(s, s); g.rotate(-0.03);
-      font(g, 150); g.lineJoin = 'round'; g.lineWidth = 22; g.strokeStyle = '#141018'; g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.strokeText(title, 0, 0); g.fillStyle = '#f2c23a'; g.fillText(title, 0, 0);
-      g.fillStyle = '#ffffff60'; g.save(); g.beginPath(); g.rect(0, -110, 900, 34); g.clip(); g.fillText(title, 0, 0); g.restore();
-      if (sub) { font(g, 44, 800); g.lineWidth = 10; g.strokeText(sub, 8, 70); g.fillStyle = '#ffffff'; g.fillText(sub, 8, 70); }
-      g.fillStyle = '#c8322e'; g.fillRect(4, 18, Math.min(1, t / 0.2) * (g.measureText(title).width * 2.6 + 40), 12); g.restore(); }
-    if (it[0] === 'G') { const [, tag, t] = it; const a = Math.min(1, t / 0.12, (1 - t) / 0.15); const x = 70 - (1 - Math.min(1, t / 0.12)) * 80; g.save(); g.globalAlpha = Math.max(0, a); font(g, 48); const w = g.measureText(tag).width;
-      g.fillStyle = '#141018e0'; g.beginPath(); g.roundRect(x - 22, 58, w + 44, 74, 12); g.fill(); g.fillStyle = '#f2c23a'; g.fillRect(x - 22, 58, 10, 74); g.fillStyle = '#ffffff'; g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillText(tag, x, 97); g.restore(); }
-    if (it[0] === 'V') { const [, kind, blink, txt] = it; g.save(); g.strokeStyle = '#ffffffe0'; g.lineWidth = 6; const m = 70, L = 90; for (const [x, y, sx, sy] of [[m, m, 1, 1], [W - m, m, -1, 1], [m, H - m, 1, -1], [W - m, H - m, -1, -1]]) { g.beginPath(); g.moveTo(x, y + sy * L); g.lineTo(x, y); g.lineTo(x + sx * L, y); g.stroke(); }
-      if (blink) { g.fillStyle = '#ff3a2a'; g.beginPath(); g.arc(m + 50, m + 48, 16, 0, 6.28); g.fill(); } font(g, 40, 800, 'Courier New, monospace'); g.fillStyle = '#ffffff'; g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillText('REC', m + 80, m + 50); g.textAlign = 'right'; g.fillText(kind === 'phone' ? '\u25CF 00:' + String(10 + (Math.floor(f / 30) % 50)).padStart(2, '0') : 'SP  \u25AE\u25AE\u25AE', W - m - 20, m + 50);
-      g.textAlign = 'left'; g.fillText(txt, m + 20, H - m - 40); g.strokeStyle = '#ffffff80'; g.lineWidth = 3; g.beginPath(); g.moveTo(W / 2 - 30, H / 2); g.lineTo(W / 2 + 30, H / 2); g.moveTo(W / 2, H / 2 - 30); g.lineTo(W / 2, H / 2 + 30); g.stroke();
-      if (kind === 'cam') { g.globalAlpha = 0.12; g.fillStyle = '#000'; for (let y = 0; y < H; y += 4) g.fillRect(0, y, W, 1); } g.restore(); }
-    if (it[0] === 'O') { const o = JSON.parse(it[1]); g.save();
-      if (o.rewind) { g.fillStyle = '#ffffff'; g.globalAlpha = 0.9; font(g, 120); g.textAlign = 'right'; g.textBaseline = 'top'; g.fillText('\u25C0\u25C0', W - 90, 70); g.globalAlpha = 0.18; for (let y = (f * 37) % 90; y < H; y += 90) g.fillRect(0, y, W, 6); }
-      if (o.count) { font(g, 64); g.textAlign = 'right'; g.textBaseline = 'top'; g.lineWidth = 12; g.strokeStyle = '#141018'; g.lineJoin = 'round'; g.strokeText(o.count, W - 80, 80); g.fillStyle = o.col || '#f2c23a'; g.fillText(o.count, W - 80, 80); }
-      g.restore(); } } } };
+export const overlayAt = (f) => { const S = shotAt(f), k = ctx(S, f); const o = S.ov ? S.ov(k) : null; if (!o) return null; const key = JSON.stringify(o);
+  return { key, draw: (g, W, H) => { g.save();
+    if (o.fact) { const a = o.fa ?? 1; g.globalAlpha = a; font(g, 36, 800, 'MXB, Montserrat, Arial'); const tw = g.measureText(o.fact).width, x = 54 - (1 - Math.min(1, a * 1.5)) * 40, y = 1418;
+      g.fillStyle = '#141018c8'; g.beginPath(); g.roundRect(x - 18, y - 30, tw + 36 + 14, 60, 12); g.fill(); g.fillStyle = '#f2c23a'; g.fillRect(x - 18, y - 30, 8, 60); g.fillStyle = '#ffffff'; g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillText(o.fact, x + 4, y + 1); }
+    if (o.year) { const a = o.ya ?? 1, s_ = bk(Math.min(1, a), 1.6); g.globalAlpha = Math.min(1, a * 2); g.translate(W / 2, 250); g.scale(s_, s_); g.rotate(-0.04); font(g, 120, 900, 'MB, Montserrat, Arial'); g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.lineJoin = 'round'; g.lineWidth = 20; g.strokeStyle = '#141018'; g.strokeText(o.year, 0, 0); g.fillStyle = '#f2c23a'; g.fillText(o.year, 0, 0); }
+    g.restore(); } };
 };

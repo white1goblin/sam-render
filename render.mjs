@@ -6,11 +6,11 @@ fs.mkdirSync(outdir, { recursive: true });
 let frames = [];
 for (const part of spec.split(',')) { if (part.includes('-')) { const [a, b] = part.split('-').map(Number); for (let f = a; f <= b; f += +step) frames.push(f); } else frames.push(+part); }
 const root = process.env.WEB || path.resolve(process.env.STYLE === 'v3' ? 'web_v3' : process.env.STYLE === 'v2' ? 'web_v2' : 'web'); // STYLE=v2 -> upgraded look (web_v2/)
-const MIME = { '.js': 'text/javascript', '.html': 'text/html', '.json': 'application/json', '.gltf': 'model/gltf+json', '.glb': 'model/gltf-binary', '.bin': 'application/octet-stream', '.jpg': 'image/jpeg', '.png': 'image/png', '.hdr': 'application/octet-stream' };
+const MIME = { '.js': 'text/javascript', '.html': 'text/html', '.json': 'application/json', '.gltf': 'model/gltf+json', '.glb': 'model/gltf-binary', '.bin': 'application/octet-stream', '.jpg': 'image/jpeg', '.png': 'image/png', '.hdr': 'application/octet-stream', '.ttf': 'font/ttf' };
 const srv = http.createServer((q, s) => { const p = path.join(root, decodeURIComponent(q.url.split('?')[0])); if (!fs.existsSync(p)) { s.writeHead(404); return s.end(); } s.writeHead(200, { 'Content-Type': MIME[path.extname(p)] || 'text/html' }); fs.createReadStream(p).pipe(s); }).listen(0);
 await new Promise(r => srv.on('listening', r));
 const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const pg = await b.newPage({ viewport: { width: 1920, height: 1080 } });
+const pg = await b.newPage({ viewport: { width: 1080, height: 1920 } });
 pg.on('console', m => console.log('PAGE', m.text())); pg.on('pageerror', e => console.log('ERR', e.message));
 await pg.goto(`http://localhost:${srv.address().port}/index.html${process.env.HASH||""}`);
 await pg.waitForFunction(() => window.ready || window.err, null, { timeout: 180000 });

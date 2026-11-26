@@ -2,12 +2,12 @@ import * as THREE from './lib/three.module.js';
 import * as T from './toon.js';
 import * as P from './paint.js';
 import { SHOTS, TOTAL, shotAt, camAt, dofAt, LIGHTS, lightFor, actorsAt, worldAt, fxAt, overlayAt } from './story.js';
-import { HOUSE, KIT, GAR, MAIN, HOSP, WARE, H_, K_, G_, M_, HO_, WA_ } from './sets.js';
+import { SHOP, LAB, S_, L_ } from './sets.js';
 import { GLTFLoader } from './lib/jsm/GLTFLoader.js';
 import { RGBELoader } from './lib/jsm/RGBELoader.js';
 import { shadeCard } from './cardshade.js';
 
-const W = 1920, H = 1080;
+const W = 1080, H = 1920;
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: true });
 renderer.setPixelRatio(1); renderer.setSize(W, H, false);
@@ -21,6 +21,7 @@ const PH = {}, QA = {};
 const QN = ['CommonTree_1', 'CommonTree_2', 'CommonTree_3', 'CommonTree_4', 'CommonTree_5', 'Bush_Common', 'Bush_Common_Flowers', 'Pine_2'];
 const phTex = async (n, srgb = true) => { const t = await TXL.loadAsync('assets/ph/' + n); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.anisotropy = 8; return t; };
 await Promise.all([
+  ...[['MB', 'Montserrat-Black.ttf'], ['MXB', 'Montserrat-ExtraBold.ttf']].map(async ([n, f]) => { const ff = new FontFace(n, `url(fonts/${f})`); await ff.load(); document.fonts.add(ff); }),
   (async () => { PH.hdr = await new RGBELoader().loadAsync('assets/ph/hdri_kloofendal_overcast_1k.hdr'); })(),
   ...QN.map(async (n) => { QA[n] = await GLL.loadAsync('assets/q/' + n + '.gltf'); }),
   (async () => { const t = await TXL.loadAsync('assets/ph3/sky_8k.jpg'); t.colorSpace = THREE.SRGBColorSpace; t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; t.wrapS = THREE.RepeatWrapping; PH.sky = t; })(),

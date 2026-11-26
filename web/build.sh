@@ -1,7 +1,7 @@
 #!/bin/bash
-# Sam 3D build: cast -> toon.js (with patches), world sources -> main.js, then syntax + story sanity checks.
-cd /workspace/reachmora-videos/sam-3d/web
-cat toonbase.js roman.js vesnacast.js ytcast.js mcast.js pjcast.js ptcast.js samcast.js rickface.js > toon.js
+# The $9.99 Trap build (from the Sam 3D engine): cast -> toon.js (with patches), world sources -> main.js, then syntax + story sanity checks.
+cd /workspace/shorts/nine-trap/web
+cat toonbase.js roman.js vesnacast.js ytcast.js mcast.js pjcast.js ptcast.js samcast.js rickface.js ninecast.js > toon.js
 python3 - <<'PY'
 s = open('toon.js').read()
 def rep(a, b):
@@ -27,6 +27,6 @@ rep('  faceFront(p, cx, hc, W, expr, facing, look, lid, helmet || hatNow, skin, 
 rep('  // ---- head ----\n  const [cpx, cpy]', '  // ---- head ----\n  if (RK()) rickCollar(p, cx, hc, H);\n  const [cpx, cpy]')
 open('toon.js', 'w').write(s)
 PY
-cat src/head1.js src/head2.js src/trees.js src/w1_mat.js src/w2_house.js src/w3_int.js src/w4_main.js src/w5_state.js src/post.js src/tail.js > main.js
+cat src/head1.js src/head2.js src/trees.js src/n1_mat.js src/n2_shop.js src/n3_lab.js src/n4_state.js src/post.js src/tail.js > main.js
 node --check main.js 2>&1 | head -5; node --check toon.js 2>&1 | head -5
 node -e "import('./story.js').then(m=>{console.log('story ok', m.TOTAL); for (let f=0; f<m.TOTAL; f+=1) { m.camAt(f); m.worldAt(f); m.dofAt(f); m.overlayAt(f); } console.log('fns ok')}).catch(e=>console.log('ERR',e.message, e.stack.split('\n')[1]))"

@@ -1,15 +1,11 @@
-<!doctype html><html><body style="margin:0;background:#cfd6c8"><canvas id="c" width="3000" height="2400"></canvas>
+<!doctype html><html><body style="margin:0;background:#cfd6c8"><canvas id="c" width="3000" height="1600"></canvas>
 <script type="module">
 import * as T from './toon.js';
 const im = new Image(); im.src = 'assets/ph/detail_fabric.jpg'; await new Promise(r => { im.onload = r; im.onerror = r; }); window.FABRIC_IMG = im;
-const c = document.getElementById('c'), g = c.getContext('2d'); g.fillStyle = '#d8dccf'; g.fillRect(0, 0, 3000, 2400);
-const L = [['sam', {expr:'neutral'}], ['samSocks', {expr:'sad', L:'hang'}], ['sam', {expr:'focus', R:'hold', prop:'wrench'}], ['sam', {expr:'happy', R:'wave', wv:1}], ['sam', {sit:1, expr:'sad', L:'belly', R:'belly'}],
-  ['sam15', {expr:'smile'}], ['sam12', {expr:'neutral'}], ['sam9', {expr:'happy', R:'hold', prop:'knife'}], ['sam5', {expr:'grin', R:'hold', prop:'truck'}], ['sam1', {expr:'yay', L:'up', R:'up'}],
-  ['mia', {expr:'smirk', R:'tele', prop:'phoneUp'}], ['mia', {expr:'sad', R:'hold', prop:'envelope', propDX:-10}], ['mia3', {expr:'happy', R:'tele', prop:'camcorder'}], ['mia12', {expr:'smile'}], ['mia18', {expr:'tired'}],
-  ['linda', {expr:'smile'}], ['linda', {expr:'cry', tears:0.3, L:'cheek', R:'cheek'}], ['lindaHome', {expr:'tired', R:'hold', prop:'tips'}], ['ray', {expr:'stern', L:'hip'}], ['rayYoung', {expr:'happy', R:'hold', prop:'jar', lid:'FOR SAM', jarFill:0.1}],
-  ['rayVest', {expr:'grimace', L:'belly', R:'belly', prop:'box', propAt:[0, 330]}], ['rayShop', {expr:'smile'}], ['hollis', {expr:'smile', R:'thumb'}], ['dee', {expr:'smirk', R:'hold', prop:'wrench'}], ['kidA', {expr:'happy'}],
-  ['kidB', {expr:'wow'}], ['inspector', {expr:'stern', R:'hold', prop:'paper'}], ['cop', {expr:'meh', R:'hold', prop:'notebook'}], ['buyer', {expr:'smile'}], ['flea', {expr:'puzzled'}]];
+const c = document.getElementById('c'), g = c.getContext('2d'); g.fillStyle = '#e6e2d6'; g.fillRect(0, 0, 3000, 1600);
+const L = [['shopper', {expr:'smile', L:'reach', facing:-0.5}], ['shopper', {expr:'hopeful', L:'reach', facing:-0.5, lift:0.3}], ['shopper', {expr:'tempt', L:'reach', facing:-0.5}], ['shopper', {expr:'wow', L:'reach'}], ['shopper', {expr:'gasp', L:'shield', R:'up', facing:-0.4}],
+ ['shopper', {expr:'happy', L:'belly', R:'belly', prop:'bags', propAt:[0,120]}], ['shopper', {expr:'proud', L:'belly', R:'belly', prop:'bags', propAt:[0,170]}], ['manager', {expr:'smirk', R:'hold', prop:'tagHand', tagTxt:'$4.99', facing:-0.4}], ['manager', {expr:'smug', R:'reach', prop:'tagHand', tagTxt:'$4.99', lift:0.2}], ['shopper', {expr:'sad', facing:0.4}]];
 let i = 0; for (const [k, o] of L) { const x = (i % 10) * 300, y = Math.floor(i / 10) * 800; g.save(); g.translate(x, y); g.scale(0.5, 0.8); const p = new T.Pen(g); T.samFront(p, k, { seed: 3 + i, ...o }); g.restore();
-  g.fillStyle = '#222'; g.font = '700 26px Arial'; g.fillText(k + ' ' + (o.expr||''), x + 10, y + 790); i++; }
+  g.fillStyle = '#222'; g.font = '700 24px Arial'; g.fillText(k + ' ' + (o.expr||''), x + 10, y + 790); i++; }
 window.ready = true;
 </script></body></html>
